@@ -3,14 +3,14 @@ import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
 import { Button, Form, Input } from 'antd';
 
-import { useStorageContext } from './react-storage-state';
+import { useStorageContext } from '../react-storage-state';
 
 /* ========================================================================== */
 /* ========================================================================== */
 /* TEMPLATE ================================================================= */
 /* ========================================================================== */
 
-export const LoggedTemplate: React.FC = ({ children }) => (
+export const PrivateLayout: React.FC = ({ children }) => (
     <div>
         <div style={{ padding: '20px', background: '#dd88aa' }}>
             <NavLink activeClassName="active" to="/">
@@ -30,7 +30,7 @@ export const LoggedTemplate: React.FC = ({ children }) => (
     </div>
 );
 
-export const PublicTemplate: React.FC = ({ children }) => (
+export const PublicLayout: React.FC = ({ children }) => (
     <div style={{ background: '#ee0' }}>{children}</div>
 );
 
