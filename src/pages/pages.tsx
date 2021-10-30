@@ -53,6 +53,7 @@ export const Login: React.FC = () => {
 
     return (
         <Form onFinish={onFinish}>
+            {React.version}
             <Form.Item label="Username" name="username">
                 <Input />
             </Form.Item>

@@ -17,8 +17,6 @@ import {
 
 import 'antd/dist/antd.css';
 
-export const VERSION = '21.11';
-
 function PrivateRoutes() {
     return (
         <Switch>
