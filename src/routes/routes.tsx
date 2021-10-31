@@ -45,7 +45,7 @@ function Routes() {
     const [token] = useStorage('token');
 
     return (
-        <BrowserRouter>
+        <>
             {token ? (
                 <PrivateLayout>
                     <PrivateRoutes />
@@ -55,16 +55,18 @@ function Routes() {
                     <PublicRoutes />
                 </PublicLayout>
             )}
-        </BrowserRouter>
+        </>
     );
 }
 
 export default function App(): React.ReactElement {
     return (
-        <StorageProvider>
-            <ConfigProvider locale={ptBR}>
-                <Routes />
-            </ConfigProvider>
-        </StorageProvider>
+        <ConfigProvider locale={ptBR}>
+            <StorageProvider>
+                <BrowserRouter>
+                    <Routes />
+                </BrowserRouter>
+            </StorageProvider>
+        </ConfigProvider>
     );
 }
