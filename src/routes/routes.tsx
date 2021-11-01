@@ -10,10 +10,7 @@ import {
     PrivateLayout,
     PublicLayout,
 } from '../pages/pages';
-import {
-    StorageProvider,
-    useStorageContext,
-} from '../utils/react-storage-state';
+import { StorageProvider, useStorageContext } from 'react-storage-state';
 
 import 'antd/dist/antd.css';
 
