@@ -11,3 +11,9 @@ npm install --save-dev react-router-dom @types/react-router-dom antd moment
 https://www.npmjs.com/package/cra-template-ts-prettier-eslint-airbnb
 
 npm eslint --init
+
+npm cache clean --force
+
+rm -rf node_modules
+
+rm -rf package-lock.json
