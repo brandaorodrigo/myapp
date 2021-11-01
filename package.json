@@ -10,6 +10,7 @@
         "react-dom": "^17.0.2",
         "react-gtm-module": "^2.0.11",
         "react-router-dom": "^5.3.0",
+        "react-storage-state": "^0.2.0",
         "react-to-print": "^2.13.0",
         "web-vitals": "^1.1.2"
     },

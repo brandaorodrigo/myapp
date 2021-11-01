@@ -1,4 +1,5 @@
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
+import { StorageProvider, useStorageContext } from 'react-storage-state';
 
 import { ConfigProvider } from 'antd';
 import ptBR from 'antd/lib/locale/pt_BR';
@@ -10,7 +11,6 @@ import {
     PrivateLayout,
     PublicLayout,
 } from '../pages/pages';
-import { StorageProvider, useStorageContext } from 'react-storage-state';
 
 import 'antd/dist/antd.css';
 
