@@ -3,7 +3,7 @@ import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
 import { Button, Form, Input } from 'antd';
 
-import { authentication, permission } from '../api';
+import { mosAuthentication, mosPermission } from '../api';
 
 export const PrivateLayout: React.FC = ({ children }) => (
     <div>
@@ -35,9 +35,9 @@ export const Login: React.FC = () => {
     const history = useHistory();
 
     const onFinish = (submit: any) => {
-        authentication<any>(submit.email, submit.password)
+        mosAuthentication<any>(submit.email, submit.password)
             .then(() => {
-                if (permission('ACCESS-INMALVIEW')) {
+                if (mosPermission('ACCESS-INMALVIEW')) {
                     history.push('/');
                 }
             })

@@ -1,10 +1,10 @@
 const env = (): string => {
     const { host } = window.location;
-    if (host.indexOf('mos.spotmet') !== -1) return 'prd';
-    if (host.indexOf('mos-staging') !== -1) return 'staging';
-    if (host.indexOf('mos-sandbox') !== -1) return 'sandbox';
-    if (host.indexOf('mos-dev-k8s') !== -1) return 'dev-k8s';
-    if (host.indexOf('mos-dev.spo') !== -1) return 'dev';
+    if (host.indexOf('mos.spotme') !== -1) return 'prd';
+    if (host.indexOf('mos-stagin') !== -1) return 'staging';
+    if (host.indexOf('mos-sandbo') !== -1) return 'sandbox';
+    if (host.indexOf('mos-dev-k8') !== -1) return 'dev-k8s';
+    if (host.indexOf('mos-dev.sp') !== -1) return 'dev';
     return 'dev';
 };
 
@@ -16,7 +16,7 @@ const JSONparse = (text: string): any => {
     }
 };
 
-const MosApi = async <T>(
+const mosApi = async <T>(
     action: string,
     options?: {
         method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -96,14 +96,14 @@ const MosApi = async <T>(
             const token = response.headers.get('x-access-token');
             localStorage.setItem('x-access-token', String(token));
 
-            const permission = await MosApi<any>(
+            const permission = await mosApi<any>(
                 '/mos/v1/auth-api/employee-permissions'
             );
             localStorage.setItem('permission', JSON.stringify(permission));
             localStorage.setItem('mallId', permission?.malls[0]?.id);
             localStorage.setItem('mallName', permission?.malls[0]?.name);
 
-            const employee = await MosApi<any>(
+            const employee = await mosApi<any>(
                 '/mos/v1/auth-api/employee-mall/own'
             );
             localStorage.setItem('employeeName', employee?.name);
@@ -139,8 +139,8 @@ const MosApi = async <T>(
     );
 };
 
-const authentication = <T>(email: string, password: string): Promise<T> =>
-    MosApi<T>('/mos/v1/auth-api/authentication', {
+const mosAuthentication = <T>(email: string, password: string): Promise<T> =>
+    mosApi<T>('/mos/v1/auth-api/authentication', {
         method: 'POST',
         body: {
             email,
@@ -148,7 +148,7 @@ const authentication = <T>(email: string, password: string): Promise<T> =>
         },
     });
 
-const permission = (name: string): boolean => {
+const mosPermission = (name: string): boolean => {
     const mallId = localStorage.getItem('mallId');
     const search = localStorage.getItem('permission');
     const { malls } = JSONparse(String(search));
@@ -157,5 +157,5 @@ const permission = (name: string): boolean => {
     return !!code;
 };
 
-export default MosApi;
-export { env, authentication, permission };
+export default mosApi;
+export { mosAuthentication, mosPermission, env };
