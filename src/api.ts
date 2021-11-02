@@ -1,38 +1,11 @@
-// fetchSpot is a complete standalone function
-// to connect and query API from spot metrics
-// - autosave and read the params from localStorage
-// - indetify the env from dns domain
-// - save result cache on sessionStorage
-// - fiscal redirect to /logout if recive forbidden from api
-// - accept raw value to send files or object values to send json
-
-const MosEnv = (): string => {
-    const getEnv = (): string => {
-        const { host } = window.location;
-        let env;
-        switch (true) {
-            case host.indexOf('mos.spotmetrics.com') !== -1:
-                env = 'prd';
-                break;
-            case host.indexOf('mos-staging.spotmetrics.com') !== -1:
-                env = 'staging';
-                break;
-            case host.indexOf('mos-sandbox.spotmetrics.com') !== -1:
-                env = 'sandbox';
-                break;
-            case host.indexOf('mos-dev.spotmetrics.com') !== -1:
-                env = 'dev';
-                break;
-            case host.indexOf('mos-dev-k8s.spotmetrics.com') !== -1:
-                env = 'dev-k8s';
-                break;
-            default:
-                env = 'dev';
-        }
-        localStorage.setItem('env', env);
-        return env;
-    };
-    return localStorage.getItem('env') ?? getEnv();
+const getEnvByHost = (): string => {
+    const { host } = window.location;
+    if (host.indexOf('mos.spotmet') !== -1) return 'prd';
+    if (host.indexOf('mos-staging') !== -1) return 'staging';
+    if (host.indexOf('mos-sandbox') !== -1) return 'sandbox';
+    if (host.indexOf('mos-dev-k8s') !== -1) return 'dev-k8s';
+    if (host.indexOf('mos-dev.spo') !== -1) return 'dev';
+    return 'dev';
 };
 
 const MosApi = async <T>(
@@ -44,12 +17,16 @@ const MosApi = async <T>(
         cache?: boolean;
     }
 ): Promise<T> => {
-    const env = MosEnv();
+    if (!localStorage.getItem('env')) {
+        const found = process.env.REACT_APP_ENV ?? getEnvByHost();
+        localStorage.setItem('env', found);
+    }
+    const env = localStorage.getItem('env');
 
     const api = `https://mos-api-${env}.spotmetrics.com`;
 
-    // add query param from local storage --------------------------------------
-    const addQueryParamFromLocalStorage = (current: string, param: string) => {
+    let input = action;
+    const addParamFromStorage = (current: string, param: string) => {
         if (localStorage.getItem(param) && current.indexOf(param) === -1) {
             return `${
                 current + (current.indexOf('?') === -1 ? '?' : '&') + param
@@ -57,11 +34,9 @@ const MosApi = async <T>(
         }
         return current;
     };
-    let input = action;
-    input = addQueryParamFromLocalStorage(input, 'mallId');
-    input = addQueryParamFromLocalStorage(input, 'storeId');
+    input = addParamFromStorage(input, 'mallId');
+    input = addParamFromStorage(input, 'storeId');
 
-    // cache -------------------------------------------------------------------
     if (options?.cache === true) {
         if (options?.method === 'GET' || !options?.method) {
             const text = sessionStorage.getItem(input);
@@ -73,7 +48,6 @@ const MosApi = async <T>(
         }
     }
 
-    // fetch -------------------------------------------------------------------
     const fetchPromise = await fetch(api + input, {
         headers: {
             Accept: 'application/json',
@@ -88,25 +62,21 @@ const MosApi = async <T>(
                 ? JSON.stringify(options.body)
                 : undefined,
     }).then(async (response) => {
-        // forbidden -----------------------------------------------------------
         if (response.status === 403) {
             localStorage.clear();
             sessionStorage.clear();
             window.location.href = '/403';
         }
 
-        // x-access-token ------------------------------------------------------
         if (options && response.headers.get('x-access-token')) {
             const token = response.headers.get('x-access-token');
             localStorage.setItem('x-access-token', String(token));
         }
 
-        // no content ----------------------------------------------------------
         if (response.status === 204) {
             return {} as T;
         }
 
-        // json ----------------------------------------------------------------
         const JSONparse = (text: string): unknown => {
             try {
                 return JSON.parse(text);
@@ -116,21 +86,17 @@ const MosApi = async <T>(
         };
         const json = JSONparse(await response.text());
 
-        // cache ---------------------------------------------------------------
         if (options?.cache === true) {
             sessionStorage.setItem(input, JSON.stringify(json));
         }
 
-        // no success ----------------------------------------------------------
         if (response.status < 200 || response.status >= 300) {
             throw json as unknown;
         }
 
-        // success -------------------------------------------------------------
         return json as T;
     });
 
-    // promise -----------------------------------------------------------------
     return new Promise(
         (resolve: (value: T) => void, reject: (reason?: unknown) => void) => {
             try {
@@ -143,4 +109,4 @@ const MosApi = async <T>(
 };
 
 export default MosApi;
-export { MosEnv };
+export { getEnvByHost };
