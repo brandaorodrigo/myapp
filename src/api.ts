@@ -6,65 +6,63 @@
 // - fiscal redirect to /logout if recive forbidden from api
 // - accept raw value to send files or object values to send json
 
-const MosEnv = () => {
-    if (!localStorage.getItem('env')) {
-        const env = () => {
-            const { host } = window.location;
-            if (host.indexOf('mos.spotmetrics.com') !== -1) {
-                return 'prd';
-            }
-            if (host.indexOf('mos-staging.spotmetrics.com') !== -1) {
-                return 'staging';
-            }
-            if (host.indexOf('mos-sandbox.spotmetrics.com') !== -1) {
-                return 'sandbox';
-            }
-            if (host.indexOf('mos-dev.spotmetrics.com') !== -1) {
-                return 'dev';
-            }
-            if (host.indexOf('mos-dev-k8s.spotmetrics.com') !== -1) {
-                return 'dev-k8s';
-            }
-            if (host.indexOf('localhost') !== -1) {
-                return 'dev';
-            }
-            return 'notfound';
-        };
-        localStorage.setItem('env', env());
-    }
-    return localStorage.getItem('env');
-    // const api = `https://mos-api-${env}.spotmetrics.com`;
+const MosEnv = (): string => {
+    const getEnv = (): string => {
+        const { host } = window.location;
+        let env;
+        switch (true) {
+            case host.indexOf('mos.spotmetrics.com') !== -1:
+                env = 'prd';
+                break;
+            case host.indexOf('mos-staging.spotmetrics.com') !== -1:
+                env = 'staging';
+                break;
+            case host.indexOf('mos-sandbox.spotmetrics.com') !== -1:
+                env = 'sandbox';
+                break;
+            case host.indexOf('mos-dev.spotmetrics.com') !== -1:
+                env = 'dev';
+                break;
+            case host.indexOf('mos-dev-k8s.spotmetrics.com') !== -1:
+                env = 'dev-k8s';
+                break;
+            default:
+                env = 'dev';
+        }
+        localStorage.setItem('env', env);
+        return env;
+    };
+    return localStorage.getItem('env') ?? getEnv();
 };
-
-interface OptionInterface {
-    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-    body?: unknown | null;
-    raw?: BodyInit;
-    cache?: boolean;
-}
 
 const MosApi = async <T>(
     action: string,
-    options?: OptionInterface
+    options?: {
+        method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+        body?: unknown | null;
+        raw?: BodyInit;
+        cache?: boolean;
+    }
 ): Promise<T> => {
     const env = MosEnv();
 
     const api = `https://mos-api-${env}.spotmetrics.com`;
 
-    const mallId = (action2: string) => {
+    // common params -----------------------------------------------------------
+    const mallId = (current: string) => {
         if (
             localStorage.getItem('mallId') &&
-            action2.indexOf('mallId') === -1
+            current.indexOf('mallId') === -1
         ) {
             return `${
-                action2 + (action2.indexOf('?') === -1 ? '?' : '&')
+                current + (current.indexOf('?') === -1 ? '?' : '&')
             }mallId=${localStorage.getItem('mallId')}`;
         }
-        return action2;
+        return current;
     };
-
     const input = mallId(action);
 
+    // cache -------------------------------------------------------------------
     if (options?.cache === true) {
         if (options?.method === 'GET' || !options?.method) {
             const text = sessionStorage.getItem(input);
@@ -76,18 +74,7 @@ const MosApi = async <T>(
         }
     }
 
-    const getOptions = (
-        options2: OptionInterface | undefined
-    ): BodyInit | undefined => {
-        if (options2?.raw) {
-            return options2.raw;
-        }
-        if (options2?.body) {
-            return JSON.stringify(options2.body);
-        }
-        return undefined;
-    };
-
+    // fetch -------------------------------------------------------------------
     const fetchPromise = await fetch(api + input, {
         headers: {
             Accept: 'application/json',
@@ -97,7 +84,10 @@ const MosApi = async <T>(
             }),
         },
         method: options?.method ?? 'GET',
-        body: getOptions(options),
+        body:
+            options?.raw ?? options?.body
+                ? JSON.stringify(options.body)
+                : undefined,
     }).then(async (response) => {
         // forbidden -----------------------------------------------------------
         if (response.status === 403) {
@@ -117,31 +107,31 @@ const MosApi = async <T>(
             return {} as T;
         }
 
-        let text = await response.text();
+        // json ----------------------------------------------------------------
+        const JSONparse = (text: string): unknown => {
+            try {
+                return JSON.parse(text);
+            } catch (error) {
+                return {};
+            }
+        };
+        const json = JSONparse(await response.text());
 
-        // check json inside text ----------------------------------------------
-        try {
-            JSON.parse(text);
-        } catch (error) {
-            text = '{}';
-        }
-
-        // save cache ----------------------------------------------------------
+        // cache ---------------------------------------------------------------
         if (options?.cache === true) {
-            sessionStorage.setItem(input, text);
+            sessionStorage.setItem(input, JSON.stringify(json));
         }
 
-        // convert text to json ------------------------------------------------
-        const json = JSON.parse(text);
-
-        // catch is status isnt 2XX --------------------------------------------
+        // no success ----------------------------------------------------------
         if (response.status < 200 || response.status >= 300) {
             throw json as unknown;
         }
 
+        // success -------------------------------------------------------------
         return json as T;
     });
 
+    // promise -----------------------------------------------------------------
     return new Promise(
         (resolve: (value: T) => void, reject: (reason?: unknown) => void) => {
             try {
