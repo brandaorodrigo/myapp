@@ -37,7 +37,7 @@ export const Login: React.FC = () => {
     const onFinish = (submit: any) => {
         authentication<any>(submit.email, submit.password)
             .then(() => {
-                if (permission('aaaa')) {
+                if (permission('ACCESS-INMALVIEW')) {
                     history.push('/');
                 }
             })
@@ -63,7 +63,6 @@ export const Login: React.FC = () => {
             },
         })
             .then((response) => {
-                localStorage.setItem('name', response.name);
                 history.push('/');
             })
             .catch(() => {

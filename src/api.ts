@@ -150,9 +150,10 @@ const authentication = <T>(email: string, password: string): Promise<T> =>
 
 const permission = (name: string): boolean => {
     const mallId = localStorage.getItem('mallId');
-    const { malls } = JSONparse(String(localStorage.getItem('permission')));
-    const { role } = malls?.find((v: any) => v?.id === mallId);
-    const code = role?.permission?.find((v: any) => v?.code === name);
+    const search = localStorage.getItem('permission');
+    const { malls } = JSONparse(String(search));
+    const { role } = malls?.find((v: any) => Number(v?.id) === Number(mallId));
+    const code = role?.permissions?.find((v: any) => String(v?.code) === name);
     return !!code;
 };
 
