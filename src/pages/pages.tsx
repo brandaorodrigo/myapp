@@ -1,15 +1,9 @@
 import React, { useEffect } from 'react';
 import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
-// import { useStorageContext } from 'react-storage-state';
 
 import { Button, Form, Input } from 'antd';
 
 import MosApi from '../api';
-
-/* ========================================================================== */
-/* ========================================================================== */
-/* TEMPLATE ================================================================= */
-/* ========================================================================== */
 
 export const PrivateLayout: React.FC = ({ children }) => (
     <div>
@@ -35,19 +29,9 @@ export const PublicLayout: React.FC = ({ children }) => (
     <div style={{ background: '#ee0' }}>{children}</div>
 );
 
-/* ========================================================================== */
-/* PAGES ==================================================================== */
-/* ========================================================================== */
-
 export const Login: React.FC = () => {
-    // const useStorage = useStorageContext();
-    // const [, setToken] = useStorage('token');
-    // const [, setMall] = useStorage('mall');
-
     const { useForm } = Form;
-
     const [form] = useForm();
-
     const history = useHistory();
 
     const onFinish = (submit: any) => {
@@ -60,23 +44,7 @@ export const Login: React.FC = () => {
         })
             .then((response) => {
                 localStorage.setItem('name', response.name);
-                localStorage.setItem('mall', 'MALLL ROODOODDODO');
                 history.push('/');
-
-                /*
-                console.log(response);
-                // localStorage.setItem('name', response.name);
-                MosApi<any>('/mos/v1/auth-api/employee-permissions', {
-                    cache: true,
-                }).then(({ malls }) => {
-                    console.log(malls);
-                    setToken('tokenValue');
-                    setMall('mallValue');
-                    // history.push('/');
-                    // localStorage.setItem('mallId', malls[0]?.id);
-                    // history.push('/home');
-                });
-                */
             })
             .catch(() => {
                 form.setFields([
@@ -89,23 +57,8 @@ export const Login: React.FC = () => {
                         errors: [''],
                     },
                 ]);
-                // setLoading(false);
             });
     };
-
-    /*
-    const user = await MosApi<LoginRes>(
-        '/mos/v1/auth-api/authentication',
-        // '/api/employee-mall/login',
-        {
-            method: 'POST',
-            body: {
-                email,
-                password,
-            },
-        }
-    );
-    */
 
     return (
         <Form form={form} onFinish={onFinish}>
@@ -124,45 +77,23 @@ export const Login: React.FC = () => {
 };
 
 export const Logout: React.FC = () => {
-    // const useStorage = useStorageContext();
-    // const [, setToken] = useStorage('token');
-    // const [, setMall] = useStorage('mall');
-
     const history = useHistory();
-    /*
-    const handleLogout = useCallback(() => {
-        setToken(undefined);
-        setMall(undefined);
-        history.push('/');
-    }, [history, setToken, setMall]);
-    */
 
     useEffect(() => {
         setTimeout(() => {
-            // handleLogout();
             localStorage.clear();
             sessionStorage.clear();
             history.push('/');
         }, 1000);
-        // }, [handleLogout]);
     }, [history]);
 
     return <div />;
 };
 
 export const Home: React.FC = () => {
-    // const useStorage = useStorageContext();
-    // const [token, setToken] = useStorage('token');
-    // const [mall, setMall] = useStorage('mall');
-
-    const { search, hash } = useLocation();
-
     const history = useHistory();
-
+    const { hash, pathname, search } = useLocation();
     const query = new URLSearchParams(search);
-
-    const { pathname } = useLocation();
-
     const { id, idd } = useParams<any>();
 
     return (
