@@ -1,0 +1,26 @@
+[
+    {
+        "dns": "https://mos.spotmetrics.com",
+        "api": "https://mos-api-prd.spotmetrics.com"
+    },
+    {
+        "dns": "https://mos-staging.spotmetrics.com",
+        "api": "https://mos-api-staging.spotmetrics.com"
+    },
+    {
+        "dns": "https://mos-sandbox.spotmetrics.com",
+        "api": "https://mos-api-sandbox.spotmetrics.com"
+    },
+    {
+        "dns": "https://mos-dev.spotmetrics.com",
+        "api": "https://mos-api-dev.spotmetrics.com"
+    },
+    {
+        "dns": "http://localhost",
+        "api": "https://mos-api-dev.spotmetrics.com"
+    },
+    {
+        "dns": "https://mos-dev-k8s.spotmetrics.com",
+        "api": "https://mos-api-dev-k8s.spotmetrics.com"
+    }
+]

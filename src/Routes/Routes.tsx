@@ -6,21 +6,21 @@ import {
     Logout,
     PrivateLayout,
     PublicLayout,
-} from './pages/pages';
+} from '../Pages/pages';
 
-export default function Routes() {
+const Routes = (): React.ReactElement => {
     useLocation();
     return (
         <>
             {localStorage.getItem('x-access-token') ? (
                 <PrivateLayout>
                     <Switch>
-                        <Route component={Home} exact path="/about/:id/:idd" />
-                        <Route component={Home} exact path="/about/:id" />
-                        <Route component={Home} exact path="/about" />
-                        <Route component={Logout} exact path="/logout" />
                         <Route component={Home} exact path="/" />
-                        {/* 404 ---------------------------------------------------- */}
+                        <Route component={Home} exact path="/about" />
+                        <Route component={Home} exact path="/about/:id" />
+                        <Route component={Home} exact path="/about/:id/:idd" />
+                        <Route component={Home} exact path="/own" />
+                        <Route component={Logout} exact path="/logout" />
                         <Route render={() => <Redirect to="/logout" />} />
                     </Switch>
                 </PrivateLayout>
@@ -28,11 +28,16 @@ export default function Routes() {
                 <PublicLayout>
                     <Switch>
                         <Route component={Login} exact path="/" />
-                        {/* 404 ---------------------------------------------------- */}
+                        <Route component={Logout} exact path="/logout" />
+                        {/* <Route component={Forgot} exact path="/forgot" /> */}
+                        {/* <Route component={Reset} path="/reset/:hash?" /> */}
+                        {/* <Route component={SignUp} path="/signup/:hash?" /> */}
                         <Route render={() => <Redirect to="/" />} />
                     </Switch>
                 </PublicLayout>
             )}
         </>
     );
-}
+};
+
+export default Routes;

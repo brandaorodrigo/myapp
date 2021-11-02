@@ -12,12 +12,12 @@ TagManager.initialize({
     gtmId: 'GTM-M45KTGJ',
 });
 
-export default function App(): React.ReactElement {
-    return (
-        <ConfigProvider locale={ptBR}>
-            <BrowserRouter>
-                <Routes />
-            </BrowserRouter>
-        </ConfigProvider>
-    );
-}
+const App = (): React.ReactElement => (
+    <ConfigProvider locale={ptBR}>
+        <BrowserRouter>
+            <Routes />
+        </BrowserRouter>
+    </ConfigProvider>
+);
+
+export default App;
