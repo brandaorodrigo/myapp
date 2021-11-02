@@ -3,7 +3,7 @@ import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
 import { Button, Form, Input } from 'antd';
 
-import MosApi from '../api';
+import { authentication, permission } from '../api';
 
 export const PrivateLayout: React.FC = ({ children }) => (
     <div>
@@ -35,6 +35,26 @@ export const Login: React.FC = () => {
     const history = useHistory();
 
     const onFinish = (submit: any) => {
+        authentication<any>(submit.email, submit.password)
+            .then(() => {
+                if (permission('aaaa')) {
+                    history.push('/');
+                }
+            })
+            .catch(() => {
+                form.setFields([
+                    {
+                        name: 'email',
+                        errors: ['USUÁRIO OU SENHA INCORRETOS'],
+                    },
+                    {
+                        name: 'password',
+                        errors: [''],
+                    },
+                ]);
+            });
+
+        /*
         MosApi<any>('/mos/v1/auth-api/authentication', {
             method: 'POST',
             body: {
@@ -58,6 +78,7 @@ export const Login: React.FC = () => {
                     },
                 ]);
             });
+            */
     };
 
     return (
