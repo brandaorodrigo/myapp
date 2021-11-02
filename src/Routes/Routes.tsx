@@ -10,9 +10,12 @@ import {
 
 const Routes = (): React.ReactElement => {
     useLocation();
+
+    const token = localStorage.getItem('x-access-token');
+
     return (
         <>
-            {localStorage.getItem('x-access-token') ? (
+            {token ? (
                 <PrivateLayout>
                     <Switch>
                         <Route component={Home} exact path="/" />
