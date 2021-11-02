@@ -48,19 +48,18 @@ const MosApi = async <T>(
 
     const api = `https://mos-api-${env}.spotmetrics.com`;
 
-    // common params -----------------------------------------------------------
-    const mallId = (current: string) => {
-        if (
-            localStorage.getItem('mallId') &&
-            current.indexOf('mallId') === -1
-        ) {
+    // add query param from local storage --------------------------------------
+    const addQueryParamFromLocalStorage = (current: string, param: string) => {
+        if (localStorage.getItem(param) && current.indexOf(param) === -1) {
             return `${
-                current + (current.indexOf('?') === -1 ? '?' : '&')
-            }mallId=${localStorage.getItem('mallId')}`;
+                current + (current.indexOf('?') === -1 ? '?' : '&') + param
+            }=${localStorage.getItem(param)}`;
         }
         return current;
     };
-    const input = mallId(action);
+    let input = action;
+    input = addQueryParamFromLocalStorage(input, 'mallId');
+    input = addQueryParamFromLocalStorage(input, 'storeId');
 
     // cache -------------------------------------------------------------------
     if (options?.cache === true) {
