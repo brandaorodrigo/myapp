@@ -1,4 +1,4 @@
-const getEnvByHost = (): string => {
+const env = (): string => {
     const { host } = window.location;
     if (host.indexOf('mos.spotmet') !== -1) return 'prd';
     if (host.indexOf('mos-staging') !== -1) return 'staging';
@@ -18,12 +18,12 @@ const MosApi = async <T>(
     }
 ): Promise<T> => {
     if (!localStorage.getItem('env')) {
-        const found = process.env.REACT_APP_ENV ?? getEnvByHost();
+        const found = process.env.REACT_APP_ENV ?? env();
         localStorage.setItem('env', found);
     }
-    const env = localStorage.getItem('env');
+    const server = localStorage.getItem('env');
 
-    const api = `https://mos-api-${env}.spotmetrics.com`;
+    const api = `https://mos-api-${server}.spotmetrics.com`;
 
     let input = action;
     const addParamFromStorage = (current: string, param: string) => {
@@ -109,4 +109,4 @@ const MosApi = async <T>(
 };
 
 export default MosApi;
-export { getEnvByHost };
+export { env };
