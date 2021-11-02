@@ -47,12 +47,6 @@
         "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
         "lint:fix": "npm run lint -- --fix"
     },
-    "eslintConfig": {
-        "extends": [
-            "react-app",
-            "react-app/jest"
-        ]
-    },
     "browserslist": {
         "production": [
             ">0.2%",
@@ -63,6 +57,12 @@
             "last 1 chrome version",
             "last 1 firefox version",
             "last 1 safari version"
+        ]
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
         ]
     }
 }

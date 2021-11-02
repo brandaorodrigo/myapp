@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
-import { useStorageContext } from 'react-storage-state';
+// import { useStorageContext } from 'react-storage-state';
 
 import { Button, Form, Input } from 'antd';
+
+import MosApi from '../api';
 
 /* ========================================================================== */
 /* ========================================================================== */
@@ -38,22 +40,77 @@ export const PublicLayout: React.FC = ({ children }) => (
 /* ========================================================================== */
 
 export const Login: React.FC = () => {
-    const useStorage = useStorageContext();
-    const [, setToken] = useStorage('token');
-    const [, setMall] = useStorage('mall');
+    // const useStorage = useStorageContext();
+    // const [, setToken] = useStorage('token');
+    // const [, setMall] = useStorage('mall');
+
+    const { useForm } = Form;
+
+    const [form] = useForm();
 
     const history = useHistory();
 
-    const onFinish = () => {
-        setToken('tokenValue');
-        setMall('mallValue');
-        history.push('/');
+    const onFinish = (submit: any) => {
+        MosApi<any>('/mos/v1/auth-api/authentication', {
+            method: 'POST',
+            body: {
+                email: submit.email,
+                password: submit.password,
+            },
+        })
+            .then((response) => {
+                localStorage.setItem('name', response.name);
+                localStorage.setItem('mall', 'MALLL ROODOODDODO');
+                history.push('/');
+
+                /*
+                console.log(response);
+                // localStorage.setItem('name', response.name);
+                MosApi<any>('/mos/v1/auth-api/employee-permissions', {
+                    cache: true,
+                }).then(({ malls }) => {
+                    console.log(malls);
+                    setToken('tokenValue');
+                    setMall('mallValue');
+                    // history.push('/');
+                    // localStorage.setItem('mallId', malls[0]?.id);
+                    // history.push('/home');
+                });
+                */
+            })
+            .catch(() => {
+                form.setFields([
+                    {
+                        name: 'email',
+                        errors: ['USUÁRIO OU SENHA INCORRETOS'],
+                    },
+                    {
+                        name: 'password',
+                        errors: [''],
+                    },
+                ]);
+                // setLoading(false);
+            });
     };
 
+    /*
+    const user = await MosApi<LoginRes>(
+        '/mos/v1/auth-api/authentication',
+        // '/api/employee-mall/login',
+        {
+            method: 'POST',
+            body: {
+                email,
+                password,
+            },
+        }
+    );
+    */
+
     return (
-        <Form onFinish={onFinish}>
+        <Form form={form} onFinish={onFinish}>
             {React.version}
-            <Form.Item label="Username" name="username">
+            <Form.Item label="Username" name="email">
                 <Input />
             </Form.Item>
             <Form.Item label="Password" name="password">
@@ -67,31 +124,36 @@ export const Login: React.FC = () => {
 };
 
 export const Logout: React.FC = () => {
-    const useStorage = useStorageContext();
-    const [, setToken] = useStorage('token');
-    const [, setMall] = useStorage('mall');
+    // const useStorage = useStorageContext();
+    // const [, setToken] = useStorage('token');
+    // const [, setMall] = useStorage('mall');
 
     const history = useHistory();
-
+    /*
     const handleLogout = useCallback(() => {
         setToken(undefined);
         setMall(undefined);
         history.push('/');
     }, [history, setToken, setMall]);
+    */
 
     useEffect(() => {
         setTimeout(() => {
-            handleLogout();
+            // handleLogout();
+            localStorage.clear();
+            sessionStorage.clear();
+            history.push('/');
         }, 1000);
-    }, [handleLogout]);
+        // }, [handleLogout]);
+    }, [history]);
 
     return <div />;
 };
 
 export const Home: React.FC = () => {
-    const useStorage = useStorageContext();
-    const [token, setToken] = useStorage('token');
-    const [mall, setMall] = useStorage('mall');
+    // const useStorage = useStorageContext();
+    // const [token, setToken] = useStorage('token');
+    // const [mall, setMall] = useStorage('mall');
 
     const { search, hash } = useLocation();
 
@@ -114,17 +176,23 @@ export const Home: React.FC = () => {
             IDD: {idd}
             <br />
             <br />
-            STATE-TOKEN: {token}
+            NAME: {localStorage.getItem('name')}
             <br />
             <br />
-            MALL: {mall}
+            MALL: {localStorage.getItem('mall')}
             <br />
-            localStorage: {localStorage.getItem('token')}
+            x-access-token: {localStorage.getItem('x-access-token')}
             <br />
-            <button onClick={() => setToken('newTokenValue')} type="button">
-                SET NEW TOKEN
+            <button
+                onClick={() => localStorage.setItem('name', 'XERE')}
+                type="button"
+            >
+                SET NEW NAME
             </button>
-            <button onClick={() => setMall('newMallValue')} type="button">
+            <button
+                onClick={() => localStorage.setItem('mall', '333')}
+                type="button"
+            >
                 SET NEW MALL
             </button>
             <button
