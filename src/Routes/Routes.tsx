@@ -1,7 +1,7 @@
 import {
     Redirect,
     Route as RouteOriginal,
-    RouteProps as RoutePropsOriginal,
+    RouteProps,
     Switch,
     useLocation,
 } from 'react-router-dom';
@@ -9,16 +9,18 @@ import {
 import { auth } from '../api';
 import { Home, Login, Logout } from '../Pages/pages';
 
-interface RouteProps extends RoutePropsOriginal {
-    permission?: string;
-}
-
-const Route: React.FC<RouteProps> = ({ permission, ...rest }) =>
+// Route + mosPermission =======================================================
+const Route: React.FC<
+    RouteProps & {
+        permission?: string;
+    }
+> = ({ permission, ...rest }) =>
     !permission || auth(permission) ? (
         <RouteOriginal {...rest} />
     ) : (
         <Redirect to="/403" />
     );
+// =============================================================================
 
 const Routes = (): React.ReactElement => {
     const { pathname, search } = useLocation();
