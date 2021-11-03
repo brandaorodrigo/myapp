@@ -16,7 +16,7 @@ const env = (): string => {
     return 'dev';
 };
 
-const mosApi = async <T>(
+const api = async <T>(
     action: string,
     options?: {
         method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -32,7 +32,7 @@ const mosApi = async <T>(
         if (found.charAt(last) === char) found = found.substring(0, last);
         return found;
     };
-    const url = `/${trim(action, '/')}`;
+    const uri = `/${trim(action, '/')}`;
 
     // =========================================================================
 
@@ -44,7 +44,7 @@ const mosApi = async <T>(
         }
         return current;
     };
-    let input = url;
+    let input = uri;
     input = addParamFromStorage(input, 'mallId');
     input = addParamFromStorage(input, 'storeId');
 
@@ -68,11 +68,11 @@ const mosApi = async <T>(
         localStorage.setItem('env', found);
     }
     const server = localStorage.getItem('env');
-    const api = `https://mos-api-${server}.spotmetrics.com`;
+    const url = `https://mos-api-${server}.spotmetrics.com`;
 
     // =========================================================================
 
-    const fetchPromise = await fetch(api + input, {
+    const fetchPromise = await fetch(url + input, {
         headers: {
             Accept: 'application/json',
             'x-access-token': localStorage.getItem('x-access-token') ?? '',
@@ -92,18 +92,18 @@ const mosApi = async <T>(
             window.location.href = '/403';
         }
 
-        if (url === '/mos/v1/auth-api/authentication') {
+        if (uri === '/mos/v1/auth-api/authentication') {
             const token = response.headers.get('x-access-token');
             localStorage.setItem('x-access-token', String(token));
 
-            const permission = await mosApi<any>(
+            const permission = await api<any>(
                 '/mos/v1/auth-api/employee-permissions'
             );
             localStorage.setItem('permission', JSON.stringify(permission));
             localStorage.setItem('mallId', permission?.malls[0]?.id);
             localStorage.setItem('mallName', permission?.malls[0]?.name);
 
-            const employee = await mosApi<any>(
+            const employee = await api<any>(
                 '/mos/v1/auth-api/employee-mall/own'
             );
             localStorage.setItem('employeeName', employee?.name);
@@ -139,8 +139,8 @@ const mosApi = async <T>(
     );
 };
 
-const mosAuthentication = <T>(email: string, password: string): Promise<T> =>
-    mosApi<T>('/mos/v1/auth-api/authentication', {
+const login = <T>(email: string, password: string): Promise<T> =>
+    api<T>('/mos/v1/auth-api/authentication', {
         method: 'POST',
         body: {
             email,
@@ -148,14 +148,17 @@ const mosAuthentication = <T>(email: string, password: string): Promise<T> =>
         },
     });
 
-const mosPermission = (name: string): boolean => {
+const auth = (name: string, redirect?: string): boolean => {
     const mallId = localStorage.getItem('mallId');
     const search = localStorage.getItem('permission');
     const { malls } = JSONparse(String(search));
     const { role } = malls?.find((v: any) => Number(v?.id) === Number(mallId));
     const code = role?.permissions?.find((v: any) => String(v?.code) === name);
+    if (redirect && !!code === false) {
+        window.location.href = redirect;
+    }
     return !!code;
 };
 
-export default mosApi;
-export { mosAuthentication, mosPermission, env };
+export default api;
+export { login, auth, env };

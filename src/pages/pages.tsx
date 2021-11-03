@@ -3,7 +3,7 @@ import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
 import { Button, Form, Input } from 'antd';
 
-import { mosAuthentication } from '../api';
+import { login } from '../api';
 
 export const PrivateLayout: React.FC = ({ children }) => (
     <div>
@@ -30,20 +30,17 @@ export const PublicLayout: React.FC = ({ children }) => (
 );
 
 export const Login: React.FC = () => {
-    const { useForm } = Form;
-    const [form] = useForm();
+    const { search } = useLocation();
     const history = useHistory();
 
+    const { useForm } = Form;
+    const [form] = useForm();
+
     const onFinish = (submit: any) => {
-        mosAuthentication<any>(submit.email, submit.password)
+        login<any>(submit.email, submit.password)
             .then(() => {
-                const redirect = localStorage.getItem('redirect');
-                if (redirect) {
-                    localStorage.removeItem('redirect');
-                    history.push(redirect);
-                } else {
-                    history.push('/home');
-                }
+                const query = new URLSearchParams(search);
+                history.push(query.get('url') ?? '/');
             })
             .catch(() => {
                 form.setFields([
