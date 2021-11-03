@@ -6,8 +6,8 @@ import {
     useLocation,
 } from 'react-router-dom';
 
-import { Home, Login, Logout } from '../Pages/pages';
-import { auth } from '../react-mos-core';
+import { Home, Login, Logout } from './Pages/pages';
+import { auth } from './react-mos-core';
 
 const PrivateRoute: React.FC<RouteProps & { permission: string }> = ({
     permission,
