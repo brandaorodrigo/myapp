@@ -3,31 +3,9 @@ import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
 import { Button, Form, Input } from 'antd';
 
+import PrivateLayout from '../Layouts/Private';
+import PublicLayout from '../Layouts/Public';
 import { login } from '../react-mos-core';
-
-export const PrivateLayout: React.FC = ({ children }) => (
-    <div>
-        <div style={{ padding: '20px', background: '#dd88aa' }}>
-            <NavLink activeClassName="active" to="/">
-                HOME
-            </NavLink>
-        </div>
-        <div style={{ padding: '20px', background: '#dd88aa' }}>
-            <NavLink activeClassName="active" to="/about">
-                ABOUT
-            </NavLink>
-        </div>
-        <div style={{ padding: '20px', background: '#aa65aa' }}>
-            <NavLink to="/logout">SAIR</NavLink>
-        </div>
-
-        <div style={{ background: '#0ee' }}>{children}</div>
-    </div>
-);
-
-export const PublicLayout: React.FC = ({ children }) => (
-    <div style={{ background: '#ee0' }}>{children}</div>
-);
 
 export const Login: React.FC = () => {
     const { search } = useLocation();
@@ -54,31 +32,6 @@ export const Login: React.FC = () => {
                     },
                 ]);
             });
-
-        /*
-        MosApi<any>('/mos/v1/auth-api/authentication', {
-            method: 'POST',
-            body: {
-                email: submit.email,
-                password: submit.password,
-            },
-        })
-            .then((response) => {
-                history.push('/');
-            })
-            .catch(() => {
-                form.setFields([
-                    {
-                        name: 'email',
-                        errors: ['USUÁRIO OU SENHA INCORRETOS'],
-                    },
-                    {
-                        name: 'password',
-                        errors: [''],
-                    },
-                ]);
-            });
-            */
     };
 
     return (
