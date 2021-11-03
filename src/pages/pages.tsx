@@ -3,7 +3,7 @@ import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
 import { Button, Form, Input } from 'antd';
 
-import { login } from '../api';
+import { login } from '../react-mos-core';
 
 export const PrivateLayout: React.FC = ({ children }) => (
     <div>

@@ -1,26 +1,7 @@
-import {
-    Redirect,
-    Route as RouteOriginal,
-    RouteProps,
-    Switch,
-    useLocation,
-} from 'react-router-dom';
+import { Redirect, Switch, useLocation } from 'react-router-dom';
 
-import { auth } from '../api';
 import { Home, Login, Logout } from '../Pages/pages';
-
-// Route + mosPermission =======================================================
-const Route: React.FC<
-    RouteProps & {
-        permission?: string;
-    }
-> = ({ permission, ...rest }) =>
-    !permission || auth(permission) ? (
-        <RouteOriginal {...rest} />
-    ) : (
-        <Redirect to="/403" />
-    );
-// =============================================================================
+import { Route } from '../react-mos-core';
 
 const Routes = (): React.ReactElement => {
     const { pathname, search } = useLocation();
