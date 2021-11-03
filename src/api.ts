@@ -1,3 +1,11 @@
+const JSONparse = (text: string): any => {
+    try {
+        return text ? JSON.parse(text) : {};
+    } catch (error) {
+        return {};
+    }
+};
+
 const env = (): string => {
     const { host } = window.location;
     if (host.indexOf('mos.spotme') !== -1) return 'prd';
@@ -6,14 +14,6 @@ const env = (): string => {
     if (host.indexOf('mos-dev-k8') !== -1) return 'dev-k8s';
     if (host.indexOf('mos-dev.sp') !== -1) return 'dev';
     return 'dev';
-};
-
-const JSONparse = (text: string): any => {
-    try {
-        return text ? JSON.parse(text) : {};
-    } catch (error) {
-        return {};
-    }
 };
 
 const mosApi = async <T>(
