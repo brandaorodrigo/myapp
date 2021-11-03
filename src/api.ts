@@ -20,9 +20,9 @@ const mosApi = async <T>(
     action: string,
     options?: {
         method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+        cache?: boolean;
         body?: unknown | null;
         raw?: BodyInit;
-        cache?: boolean;
     }
 ): Promise<T> => {
     const trim = (value: string, char = ' ') => {
