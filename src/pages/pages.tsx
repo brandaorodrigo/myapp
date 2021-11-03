@@ -3,7 +3,7 @@ import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
 import { Button, Form, Input } from 'antd';
 
-import { mosAuthentication, mosPermission } from '../api';
+import { mosAuthentication } from '../api';
 
 export const PrivateLayout: React.FC = ({ children }) => (
     <div>
@@ -37,8 +37,12 @@ export const Login: React.FC = () => {
     const onFinish = (submit: any) => {
         mosAuthentication<any>(submit.email, submit.password)
             .then(() => {
-                if (mosPermission('ACCESS-INMALVIEW')) {
-                    history.push('/');
+                const redirect = localStorage.getItem('redirect');
+                if (redirect) {
+                    localStorage.removeItem('redirect');
+                    history.push(redirect);
+                } else {
+                    history.push('/home');
                 }
             })
             .catch(() => {
@@ -81,18 +85,20 @@ export const Login: React.FC = () => {
     };
 
     return (
-        <Form form={form} onFinish={onFinish}>
-            {React.version}
-            <Form.Item label="Username" name="email">
-                <Input />
-            </Form.Item>
-            <Form.Item label="Password" name="password">
-                <Input.Password />
-            </Form.Item>
-            <Form.Item>
-                <Button htmlType="submit">Submit</Button>
-            </Form.Item>
-        </Form>
+        <PublicLayout>
+            <Form form={form} onFinish={onFinish}>
+                {React.version}
+                <Form.Item label="Username" name="email">
+                    <Input />
+                </Form.Item>
+                <Form.Item label="Password" name="password">
+                    <Input.Password />
+                </Form.Item>
+                <Form.Item>
+                    <Button htmlType="submit">Submit</Button>
+                </Form.Item>
+            </Form>
+        </PublicLayout>
     );
 };
 
@@ -117,46 +123,48 @@ export const Home: React.FC = () => {
     const { id, idd } = useParams<any>();
 
     return (
-        <h2>
-            QUERY: {query.get('teste')}
-            <br />
-            HASH: {hash}
-            <br />
-            ID: {id}
-            <br />
-            IDD: {idd}
-            <br />
-            <br />
-            NAME: {localStorage.getItem('name')}
-            <br />
-            <br />
-            MALL: {localStorage.getItem('mall')}
-            <br />
-            x-access-token: {localStorage.getItem('x-access-token')}
-            <br />
-            <button
-                onClick={() => localStorage.setItem('name', 'XERE')}
-                type="button"
-            >
-                SET NEW NAME
-            </button>
-            <button
-                onClick={() => localStorage.setItem('mall', '333')}
-                type="button"
-            >
-                SET NEW MALL
-            </button>
-            <button
-                onClick={() => {
-                    history.push('/reload');
-                    history.replace(pathname);
-                }}
-                type="button"
-            >
-                RELOAD PAGE
-            </button>
-            <br />
-            <NavLink to="/about/dsdsd?teste=444">TESTE SEARCH</NavLink>
-        </h2>
+        <PrivateLayout>
+            <h2>
+                QUERY: {query.get('teste')}
+                <br />
+                HASH: {hash}
+                <br />
+                ID: {id}
+                <br />
+                IDD: {idd}
+                <br />
+                <br />
+                NAME: {localStorage.getItem('name')}
+                <br />
+                <br />
+                MALL: {localStorage.getItem('mall')}
+                <br />
+                x-access-token: {localStorage.getItem('x-access-token')}
+                <br />
+                <button
+                    onClick={() => localStorage.setItem('name', 'XERE')}
+                    type="button"
+                >
+                    SET NEW NAME
+                </button>
+                <button
+                    onClick={() => localStorage.setItem('mall', '333')}
+                    type="button"
+                >
+                    SET NEW MALL
+                </button>
+                <button
+                    onClick={() => {
+                        history.push('/reload');
+                        history.replace(pathname);
+                    }}
+                    type="button"
+                >
+                    RELOAD PAGE
+                </button>
+                <br />
+                <NavLink to="/about/dsdsd?teste=444">TESTE SEARCH</NavLink>
+            </h2>
+        </PrivateLayout>
     );
 };

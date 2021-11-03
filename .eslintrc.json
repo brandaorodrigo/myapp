@@ -40,6 +40,7 @@
             }
         ],
         "react/jsx-uses-react": "off",
+        "react/jsx-props-no-spreading": "off",
         "react/jsx-sort-props": [
             "error",
             {
@@ -47,6 +48,7 @@
             }
         ],
         "react/react-in-jsx-scope": "off",
+        "react/prop-types": "off",
         "sort-imports": [
             "error",
             {
