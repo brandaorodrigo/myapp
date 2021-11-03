@@ -30,7 +30,10 @@ const Routes = (): React.ReactElement => {
             {/* <Route component={Forgot} exact path="/forgot" /> */}
             {/* <Route component={Reset} path="/reset/:hash?" /> */}
             {/* <Route component={SignUp} path="/signup/:hash?" /> */}
-            <Route exact path="/own" render={() => <div>404</div>} />
+
+            <Route authorized exact path="/404" render={() => <div>404</div>} />
+            <Route authorized exact path="/403" render={() => <div>403</div>} />
+
             <Route render={() => <Redirect to="/404" />} />
         </Switch>
     );
