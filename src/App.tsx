@@ -1,10 +1,10 @@
 import TagManager from 'react-gtm-module';
 import { BrowserRouter } from 'react-router-dom';
 
+import 'antd/dist/antd.css';
+
 import { ConfigProvider } from 'antd';
 import ptBR from 'antd/lib/locale/pt_BR';
-
-import 'antd/dist/antd.css';
 
 import Routes from './Routes';
 

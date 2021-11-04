@@ -1,4 +1,4 @@
-const JSONparse = (text: string): any => {
+const JSONparse = (text: string | undefined): any => {
     try {
         return text ? JSON.parse(text) : {};
     } catch (error) {
@@ -151,9 +151,13 @@ const login = <T>(email: string, password: string): Promise<T> =>
 const auth = (name: string, redirect?: string): boolean => {
     const mallId = localStorage.getItem('mallId');
     const search = localStorage.getItem('permission');
-    const { malls } = JSONparse(String(search));
-    const { role } = malls?.find((v: any) => Number(v?.id) === Number(mallId));
-    const code = role?.permissions?.find((v: any) => String(v?.code) === name);
+    const permissions = JSONparse(String(search));
+    const malls = permissions?.malls?.find(
+        (v: any) => Number(v?.id) === Number(mallId)
+    );
+    const code = malls?.role?.permissions?.find(
+        (v: any) => String(v?.code) === name
+    );
     if (redirect && !!code === false) {
         window.location.href = redirect;
     }
