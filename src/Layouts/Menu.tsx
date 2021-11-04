@@ -74,8 +74,8 @@ export default function MosMenu(): React.ReactElement {
             >
                 <Menu.Item key="5">Option 5</Menu.Item>
                 <Menu.Item key="/lost-found/form/556665">Option 6</Menu.Item>
+                <Menu.Item key="/own3">OWNNNNNNNNNNNNNNNN</Menu.Item>
                 <SubMenu key="sub3" title="Submenu">
-                    <Menu.Item key="7">Option 7</Menu.Item>
                     <Menu.Item key="8">Option 8</Menu.Item>
                 </SubMenu>
             </SubMenu>

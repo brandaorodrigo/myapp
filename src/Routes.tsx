@@ -18,6 +18,13 @@ const Routes = (): React.ReactElement => {
     const { pathname, search } = useLocation();
     return (
         <>
+            {localStorage.getItem('x-access-token') && auth('ACCESS-VIPROOM') && (
+                <Switch>
+                    <Route component={Home} exact path="/own2" />
+                    <Route component={Home} exact path="/own3" />
+                    <Route component={Home} exact path="/own4" />
+                </Switch>
+            )}
             {localStorage.getItem('x-access-token') ? (
                 <Switch>
                     <Route component={Home} exact path="/" />
