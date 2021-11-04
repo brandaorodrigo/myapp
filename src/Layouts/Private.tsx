@@ -1,7 +1,10 @@
 import { NavLink } from 'react-router-dom';
 
+import Menu from './Menu';
+
 const PrivateLayout: React.FC = ({ children }) => (
     <div>
+        <Menu />
         <div style={{ padding: '20px', background: '#dd88aa' }}>
             <NavLink activeClassName="active" to="/">
                 HOME

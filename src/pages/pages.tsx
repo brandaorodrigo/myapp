@@ -118,3 +118,31 @@ export const Home: React.FC = () => {
         </PrivateLayout>
     );
 };
+
+export const Lost1: React.FC = () => (
+    <PrivateLayout>
+        <h2>LOST 1</h2>
+    </PrivateLayout>
+);
+
+export const Lost2: React.FC = () => {
+    const { id } = useParams<any>();
+
+    return (
+        <PrivateLayout>
+            <h2>LOST 2</h2>
+            ID: {id}
+        </PrivateLayout>
+    );
+};
+
+export const Lost3: React.FC = () => {
+    const { id } = useParams<any>();
+
+    return (
+        <PrivateLayout>
+            <h2>LOST 3</h2>
+            ID: {id}
+        </PrivateLayout>
+    );
+};

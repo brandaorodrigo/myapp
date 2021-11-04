@@ -6,7 +6,7 @@ import {
     useLocation,
 } from 'react-router-dom';
 
-import { Home, Login, Logout } from './Pages/pages';
+import { Home, Login, Logout, Lost1, Lost2, Lost3 } from './Pages/pages';
 import { auth } from './react-mos-core';
 
 const PrivateRoute: React.FC<RouteProps & { permission: string }> = ({
@@ -20,24 +20,26 @@ const Routes = (): React.ReactElement => {
         <>
             {localStorage.getItem('x-access-token') ? (
                 <Switch>
+                    <Route component={Home} exact path="/" />
                     <PrivateRoute
-                        component={Home}
+                        component={Lost3}
                         exact
-                        path="/"
+                        path="/lost-found/form/:id?"
                         permission="ACCESS-VIPROOM"
                     />
                     <PrivateRoute
-                        component={Home}
+                        component={Lost2}
                         exact
-                        path="/store"
+                        path="/lost-found/:id"
                         permission="ACCESS-VIPROOM"
                     />
                     <PrivateRoute
-                        component={Home}
+                        component={Lost1}
                         exact
-                        path="/about/:id"
+                        path="/lost-found"
                         permission="ACCESS-VIPROOM"
                     />
+
                     <PrivateRoute
                         component={Home}
                         exact
