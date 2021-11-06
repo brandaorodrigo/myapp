@@ -6,6 +6,7 @@ import { Button, Form, Input } from 'antd';
 import PrivateLayout from '../Layouts/Private';
 import PublicLayout from '../Layouts/Public';
 import { login } from '../react-mos-core';
+import useStorage from '../react-mos-core/useStorage';
 
 export const Login: React.FC = () => {
     const { search } = useLocation();
@@ -67,10 +68,12 @@ export const Logout: React.FC = () => {
 };
 
 export const Home: React.FC = () => {
+    const [tt, setTt] = useStorage<any>('tt');
+    console.log(tt);
     const history = useHistory();
     const { hash, pathname, search } = useLocation();
     const query = new URLSearchParams(search);
-    const { id, idd } = useParams<any>();
+    const { id } = useParams<any>();
 
     return (
         <PrivateLayout>
@@ -81,7 +84,7 @@ export const Home: React.FC = () => {
                 <br />
                 ID: {id}
                 <br />
-                IDD: {idd}
+                IDD: {tt}
                 <br />
                 <br />
                 NAME: {localStorage.getItem('name')}
@@ -91,16 +94,10 @@ export const Home: React.FC = () => {
                 <br />
                 x-access-token: {localStorage.getItem('x-access-token')}
                 <br />
-                <button
-                    onClick={() => localStorage.setItem('name', 'XERE')}
-                    type="button"
-                >
+                <button onClick={() => setTt('zzz')} type="button">
                     SET NEW NAME
                 </button>
-                <button
-                    onClick={() => localStorage.setItem('mall', '333')}
-                    type="button"
-                >
+                <button onClick={() => setTt(undefined)} type="button">
                     SET NEW MALL
                 </button>
                 <button

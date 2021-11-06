@@ -9,6 +9,17 @@ import {
 import { Home, Login, Logout, Lost1, Lost2, Lost3 } from './Pages/pages';
 import { auth } from './react-mos-core';
 
+/*
+const useFetch = () => {
+    const useStorage = useStorageContext();
+    const [env, setEnv] = useStorage('env');
+    const [token, setToken] = useStorage('x-access-token');
+    const [permission, setPermission] = useStorage('permission');
+    const [mallId, setMallId] = useStorage('mallId');
+    const [storeId, setStoreId] = useStorage('storeId');
+};
+*/
+
 const PrivateRoute: React.FC<RouteProps & { permission: string }> = ({
     permission,
     ...rest

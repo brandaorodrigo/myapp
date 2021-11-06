@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
 
 import {
@@ -8,42 +8,32 @@ import {
 } from '@ant-design/icons';
 import { Menu } from 'antd';
 
+import { auth } from '../react-mos-core';
+
 const { SubMenu } = Menu;
 
 export default function MosMenu(): React.ReactElement {
     const { pathname } = useLocation();
     const history = useHistory();
 
-    const firstPath = pathname.split('/')[1];
-    const secondPath = pathname.split('/')[2];
+    const path = pathname.split('/');
 
-    const open = `/${firstPath}${secondPath ? `/${secondPath}` : ''}`;
+    const open = `/${path[1]}${path[2] ? `/${path[2]}` : ''}`;
+
+    const [openKeys, setOpenKeys] = useState<string[]>(
+        path[1] ? [path[1]] : []
+    );
 
     const collapsed = false;
-
-    const rootSubmenuKeys = ['lost-found', 'sub2', 'sub3', 'sub4'];
-
-    const [openKeys, setOpenKeys] = useState<string[]>([firstPath]);
-
-    const onOpenChange = (keys: string[]) => {
-        const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
-        if (rootSubmenuKeys.indexOf(String(latestOpenKey)) === -1) {
-            setOpenKeys(keys);
-        } else {
-            setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
-        }
-    };
-
-    useEffect(() => {
-        console.log(openKeys);
-    }, [openKeys]);
 
     return (
         <Menu
             inlineCollapsed={collapsed}
             mode="inline"
             onClick={({ key }) => history.push(key)}
-            onOpenChange={onOpenChange}
+            onOpenChange={(keys: string[]) =>
+                setOpenKeys([keys[keys.length - 1]])
+            }
             openKeys={openKeys}
             selectedKeys={[open]}
             style={{ width: 256 }}
@@ -67,18 +57,22 @@ export default function MosMenu(): React.ReactElement {
                     <Menu.Item key="4">Option 4</Menu.Item>
                 </Menu.ItemGroup>
             </SubMenu>
-            <SubMenu
-                icon={<AppstoreOutlined />}
-                key="sub2"
-                title="Navigation Two"
-            >
-                <Menu.Item key="5">Option 5</Menu.Item>
-                <Menu.Item key="/lost-found/form/556665">Option 6</Menu.Item>
-                <Menu.Item key="/own3">OWNNNNNNNNNNNNNNNN</Menu.Item>
-                <SubMenu key="sub3" title="Submenu">
-                    <Menu.Item key="8">Option 8</Menu.Item>
+            {auth('NOME_DA_PERMISSAO') && (
+                <SubMenu
+                    icon={<AppstoreOutlined />}
+                    key="sub2"
+                    title="Navigation Two"
+                >
+                    <Menu.Item key="5">Option 5</Menu.Item>
+                    <Menu.Item key="/lost-found/form/556665">
+                        Option 6
+                    </Menu.Item>
+                    <Menu.Item key="/own3">OWNNNNNNNNNNNNNNNN</Menu.Item>
+                    <SubMenu key="sub3" title="Submenu">
+                        <Menu.Item key="8">Option 8</Menu.Item>
+                    </SubMenu>
                 </SubMenu>
-            </SubMenu>
+            )}
             <SubMenu
                 icon={<SettingOutlined />}
                 key="sub4"

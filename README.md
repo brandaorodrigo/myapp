@@ -18,6 +18,8 @@ rm -rf node_modules
 
 rm -rf package-lock.json
 
+ssh-keygen -t rsa -C "your.email@example.com" -b 4096
+
 // fetchSpot is a complete standalone function
 // to connect and query API from spot metrics
 // - autosave and read the params from localStorage
