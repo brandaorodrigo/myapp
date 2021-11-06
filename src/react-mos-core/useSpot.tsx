@@ -21,8 +21,12 @@ const api = async <T,>(
     if (options?.cache === true) {
         if (method === 'GET') {
             const text = window.sessionStorage.getItem(input);
-            if (text && text !== '') return JSONparse(text) as T;
-        } else window.sessionStorage.removeItem(input);
+            if (text && text !== '') {
+                return JSONparse(text) as T;
+            }
+        } else {
+            window.sessionStorage.removeItem(input);
+        }
     }
 
     const fetchPromise = await fetch(input, {
@@ -41,13 +45,17 @@ const api = async <T,>(
 
         const json = JSONparse(await response.text());
 
-        if (options?.cache === true && method === 'GET')
+        if (options?.cache === true && method === 'GET') {
             window.sessionStorage.setItem(input, JSON.stringify(json));
+        }
 
-        if (response.status < 200 || response.status >= 300) throw json;
+        if (response.status < 200 || response.status >= 300) {
+            throw json;
+        }
 
-        if (options?.getHeaders)
+        if (options?.getHeaders) {
             options.getHeaders(response.headers, json as T);
+        }
 
         return json as T;
     });
@@ -74,18 +82,7 @@ const mosApi = async <T,>(
     }
 ): Promise<T> => {
     // -------------------------------------------------------------------------
-    // add the x-access-token on header of all requests
-    // -------------------------------------------------------------------------
-    const mosOption = {
-        headers: {
-            'x-access-token':
-                window.localStorage.getItem('x-access-token') ?? '',
-        },
-        ...options,
-    };
-
-    // -------------------------------------------------------------------------
-    // get the api url based on react env or domain name
+    // api url based on react env or domain name
     // -------------------------------------------------------------------------
     if (!window.localStorage.getItem('env')) {
         const getEnvByDomain = (): string => {
@@ -97,36 +94,40 @@ const mosApi = async <T,>(
             if (host.indexOf('mos-dev.sp') !== -1) return 'dev';
             return 'dev';
         };
-        window.localStorage.setItem(
-            'env',
-            process.env.REACT_APP_ENV ?? getEnvByDomain()
-        );
+        const env = process.env.REACT_APP_ENV ?? getEnvByDomain();
+        window.localStorage.setItem('env', env);
     }
     const env = window.localStorage.getItem('env');
-    const mosUrl = `https://mos-api-${env}.spotmetrics.com`;
+    const url = `https://mos-api-${env}.spotmetrics.com`;
 
     // -------------------------------------------------------------------------
-    // get the uri and add common query params (mallId and storeId)
+    // add on uri the common query params (mallId and storeId)
     // -------------------------------------------------------------------------
     const setParamsFromStorage = (current: string, params: string[]) => {
-        let fixInput = current;
+        let value = current;
         params.forEach((param) => {
             if (current.indexOf(param) === -1) {
-                const value = window.localStorage.getItem(param);
-                if (value) {
-                    const symbol = fixInput.indexOf('?') === -1 ? '?' : '&';
-                    fixInput += `${symbol + param}=${value}`;
+                const item = window.localStorage.getItem(param);
+                if (item) {
+                    const symbol = value.indexOf('?') === -1 ? '?' : '&';
+                    value += `${symbol + param}=${item}`;
                 }
             }
         });
-        return fixInput;
+        return value;
     };
-    const mosUri = setParamsFromStorage(input, ['mallId', 'storeId']);
+    const uri = setParamsFromStorage(input, ['mallId', 'storeId']);
 
     // -------------------------------------------------------------------------
-    // execute the original api function
+    // x-access-token on header
     // -------------------------------------------------------------------------
-    return api<T>(mosUrl + mosUri, mosOption);
+    return api<T>(url + uri, {
+        headers: {
+            'x-access-token':
+                window.localStorage.getItem('x-access-token') ?? '',
+        },
+        ...options,
+    });
 };
 
 type Permissions = {
@@ -150,15 +151,13 @@ const authentication = (
             // -----------------------------------------------------------------
             // set x-access-token
             // -----------------------------------------------------------------
-            window.localStorage.setItem(
-                'x-access-token',
-                headers.get('x-access-token') as string
-            );
+            const token = headers.get('x-access-token') as string;
+            window.localStorage.setItem('x-access-token', token);
 
             // -----------------------------------------------------------------
             // set employee.name
             // -----------------------------------------------------------------
-            window.localStorage.setItem('employee.name', response.name);
+            window.localStorage.setItem('employeeName', response.name);
 
             // -----------------------------------------------------------------
             // set permissions
@@ -191,24 +190,22 @@ const authentication = (
                     permissions: role.permissions.map(({ code }) => code),
                 });
             });
-            window.localStorage.setItem(
-                'permissions',
-                JSON.stringify(permissions)
-            );
+            const stringPermissions = JSON.stringify(permissions);
+            window.localStorage.setItem('permissions', stringPermissions);
 
             // -----------------------------------------------------------------
             // set the first mall
             // -----------------------------------------------------------------
-            window.localStorage.setItem('mall.id', String(permissions[0]?.id));
-            window.localStorage.setItem('mall.name', permissions[0]?.name);
+            window.localStorage.setItem('mallId', String(permissions[0]?.id));
+            window.localStorage.setItem('mallName', permissions[0]?.name);
 
             // -----------------------------------------------------------------
             // set the first store (if exists)
             // -----------------------------------------------------------------
             if (permissions[0]?.stores) {
                 const store = permissions[0].stores[0];
-                window.localStorage.setItem('store.id', String(store.id));
-                window.localStorage.setItem('store.name', String(store.name));
+                window.localStorage.setItem('storeId', String(store.id));
+                window.localStorage.setItem('storeName', String(store.name));
             }
         },
     });
@@ -216,16 +213,19 @@ const authentication = (
 const authenticated = (): boolean =>
     !!window.localStorage.getItem('x-access-token');
 
-const permission = (name?: string): boolean => {
-    if (authenticated()) return false;
+const permission = (name: string): boolean => {
+    if (authenticated()) {
+        return false;
+    }
 
-    const mallId = Number(window.localStorage.getItem('mall.id'));
-    const permissions = JSONparse(
-        window.localStorage.getItem('permissions')
-    ) as Permissions;
+    const mallId = Number(window.localStorage.getItem('mallId'));
+    const stringPermissions = window.localStorage.getItem('permissions');
+    const permissions = JSONparse(stringPermissions) as Permissions;
 
     const mall = permissions?.find(({ id }) => id === mallId);
-    if (mall && mall.permissions?.find((code) => code === name)) return true;
+    if (mall && mall.permissions?.find((code) => code === name)) {
+        return true;
+    }
 
     return false;
 };
