@@ -6,7 +6,7 @@ const JSONparse = (text: string | null): unknown => {
     }
 };
 
-const api = async <T,>(
+const api = async <T>(
     input: string,
     options?: {
         body?: unknown | null;
@@ -71,7 +71,7 @@ const api = async <T,>(
     );
 };
 
-const mosApi = async <T,>(
+const mosApi = async <T>(
     input: string,
     options?: {
         body?: unknown | null;

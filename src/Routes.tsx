@@ -7,36 +7,25 @@ import {
 } from 'react-router-dom';
 
 import { Home, Login, Logout, Lost1, Lost2, Lost3 } from './Pages/pages';
-import { auth } from './react-mos-core';
-
-/*
-const useFetch = () => {
-    const useStorage = useStorageContext();
-    const [env, setEnv] = useStorage('env');
-    const [token, setToken] = useStorage('x-access-token');
-    const [permission, setPermission] = useStorage('permission');
-    const [mallId, setMallId] = useStorage('mallId');
-    const [storeId, setStoreId] = useStorage('storeId');
-};
-*/
+import { authenticated, permission } from './react-mos-core/mosApi';
 
 const PrivateRoute: React.FC<RouteProps & { permission: string }> = ({
-    permission,
+    permission: value,
     ...rest
-}) => (auth(permission) ? <Route {...rest} /> : <Redirect to="/403" />);
+}) => (permission(value) ? <Route {...rest} /> : <Redirect to="/403" />);
 
 const Routes = (): React.ReactElement => {
     const { pathname, search } = useLocation();
     return (
         <>
-            {localStorage.getItem('x-access-token') && auth('ACCESS-VIPROOM') && (
+            {permission('ACCESS-VIPROOM') && (
                 <Switch>
                     <Route component={Home} exact path="/own2" />
                     <Route component={Home} exact path="/own3" />
                     <Route component={Home} exact path="/own4" />
                 </Switch>
             )}
-            {localStorage.getItem('x-access-token') ? (
+            {authenticated() ? (
                 <Switch>
                     <Route component={Home} exact path="/" />
                     <PrivateRoute

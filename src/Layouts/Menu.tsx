@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons';
 import { Menu } from 'antd';
 
-import { auth } from '../react-mos-core';
+import { permission } from '../react-mos-core/mosApi';
 
 const { SubMenu } = Menu;
 
@@ -57,7 +57,7 @@ export default function MosMenu(): React.ReactElement {
                     <Menu.Item key="4">Option 4</Menu.Item>
                 </Menu.ItemGroup>
             </SubMenu>
-            {auth('NOME_DA_PERMISSAO') && (
+            {permission('NOME_DA_PERMISSAO') && (
                 <SubMenu
                     icon={<AppstoreOutlined />}
                     key="sub2"

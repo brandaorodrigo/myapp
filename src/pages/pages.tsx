@@ -5,8 +5,7 @@ import { Button, Form, Input } from 'antd';
 
 import PrivateLayout from '../Layouts/Private';
 import PublicLayout from '../Layouts/Public';
-// import { login } from '../react-mos-core';
-import { authentication } from '../react-mos-core/useSpot';
+import { authentication } from '../react-mos-core/mosApi';
 import useStorage from '../react-mos-core/useStorage';
 
 export const Login: React.FC = () => {
