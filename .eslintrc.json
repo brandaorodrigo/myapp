@@ -23,7 +23,12 @@
     "plugins": ["eslint-plugin-import-helpers"],
     "rules": {
         "@typescript-eslint/no-explicit-any": "warn",
-        "@typescript-eslint/no-unused-vars": "error",
+        "@typescript-eslint/no-unused-vars": "warn",
+        "react/jsx-props-no-spreading": "off",
+        "react/jsx-uses-react": "off",
+        "react/prop-types": "off",
+        "react/react-in-jsx-scope": "off",
+
         "import-helpers/order-imports": [
             "error",
             {
@@ -39,16 +44,12 @@
                 "newlinesBetween": "always"
             }
         ],
-        "react/jsx-uses-react": "off",
-        "react/jsx-props-no-spreading": "off",
         "react/jsx-sort-props": [
             "error",
             {
                 "ignoreCase": true
             }
         ],
-        "react/react-in-jsx-scope": "off",
-        "react/prop-types": "off",
         "sort-imports": [
             "error",
             {
