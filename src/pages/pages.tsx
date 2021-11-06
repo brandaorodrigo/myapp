@@ -5,7 +5,8 @@ import { Button, Form, Input } from 'antd';
 
 import PrivateLayout from '../Layouts/Private';
 import PublicLayout from '../Layouts/Public';
-import { login } from '../react-mos-core';
+// import { login } from '../react-mos-core';
+import { authentication } from '../react-mos-core/useSpot';
 import useStorage from '../react-mos-core/useStorage';
 
 export const Login: React.FC = () => {
@@ -15,8 +16,8 @@ export const Login: React.FC = () => {
     const { useForm } = Form;
     const [form] = useForm();
 
-    const onFinish = (submit: any) => {
-        login<any>(submit.email, submit.password)
+    const onFinish = (submit: { email: string; password: string }) => {
+        authentication(submit.email, submit.password)
             .then(() => {
                 const query = new URLSearchParams(search);
                 history.push(query.get('url') ?? '/');
