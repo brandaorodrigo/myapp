@@ -24,7 +24,7 @@ export const Login: React.FC = () => {
                 const query = new URLSearchParams(search);
                 history.push(query.get('url') ?? '/');
             })
-            .catch(() => {
+            .catch((error) => {
                 form.setFields([
                     {
                         name: 'email',

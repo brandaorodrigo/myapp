@@ -15,16 +15,15 @@ const JSONparse = (text: string | null): unknown => {
     }
 };
 
-const JSONfetch = async <T>(
-    input: string,
-    options?: {
-        body?: unknown | null;
-        cache?: boolean;
-        headers?: HeadersInit;
-        method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-        getHeaders?: (headers: Headers, json: T) => void;
-    }
-): Promise<T> => {
+type Options = {
+    body?: unknown | null;
+    cache?: boolean;
+    headers?: HeadersInit;
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+    getHeaders?: (headers: Headers) => void;
+};
+
+const JSONfetch = async <T>(input: string, options?: Options): Promise<T> => {
     const method = options?.method ?? 'GET';
 
     if (options?.cache === true) {
@@ -63,7 +62,7 @@ const JSONfetch = async <T>(
         }
 
         if (options?.getHeaders) {
-            options.getHeaders(response.headers, json as T);
+            options.getHeaders(response.headers);
         }
 
         return json as T;
@@ -80,16 +79,7 @@ const JSONfetch = async <T>(
     );
 };
 
-const mosApi = async <T>(
-    input: string,
-    options?: {
-        body?: unknown | null;
-        cache?: boolean;
-        headers?: HeadersInit;
-        method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-        getHeaders?: (headers: Headers, json: T) => void;
-    }
-): Promise<T> => {
+const mosApi = async <T>(input: string, options?: Options): Promise<T> => {
     if (!window.localStorage.getItem('env')) {
         const findEnv = (): string => {
             const found = hosts.find(
@@ -100,7 +90,6 @@ const mosApi = async <T>(
         const env = process.env.REACT_APP_ENV ?? findEnv();
         window.localStorage.setItem('env', env);
     }
-
     const env = window.localStorage.getItem('env');
     const url = new URL(`https://mos-api-${env}.spotmetrics.com${input}`);
 
@@ -128,81 +117,88 @@ type Malls = {
     }[];
 }[];
 
-const mosAuthentication = (
+const mosAuthentication = async (
     email: string,
     password: string
-): Promise<{ name: string; area: string }> =>
-    mosApi<{ name: string; area: string }>('/mos/v1/auth-api/authentication', {
-        method: 'POST',
-        body: { email, password },
-        getHeaders: async (headers, response) => {
-            // -----------------------------------------------------------------
-            // set x-access-token
-            // -----------------------------------------------------------------
-            const token = headers.get('x-access-token') as string;
-            window.localStorage.setItem('x-access-token', token);
+): Promise<boolean> => {
+    const authentication = await mosApi<{ name: string; area: string }>(
+        '/mos/v1/auth-api/authentication',
+        {
+            method: 'POST',
+            body: { email, password },
+            getHeaders: async (headers) => {
+                const token = headers.get('x-access-token') as string;
+                window.localStorage.setItem('x-access-token', token);
+            },
+        }
+    );
 
-            // -----------------------------------------------------------------
-            // set employee.name
-            // -----------------------------------------------------------------
-            window.localStorage.setItem('employeeName', response.name);
+    if (!authentication) {
+        return false;
+    }
 
-            // -----------------------------------------------------------------
-            // set permissions
-            // -----------------------------------------------------------------
-            /*
+    // -----------------------------------------------------------------
+    // set employee.name
+    // -----------------------------------------------------------------
+    window.localStorage.setItem('employeeName', authentication.name);
+
+    // -----------------------------------------------------------------
+    // set permissions
+    // -----------------------------------------------------------------
+    /*
             const malls = await mosApi<Permissions>(
                 '/mos/v1/auth-api/employee-malls'
             );
             window.localStorage.setItem('malls', JSON.stringify(malls));
             */
-            // (temp) ==========================================================
-            type Permissions = {
-                malls: {
+    // (temp) ==========================================================
+    type Permissions = {
+        malls: {
+            id: number;
+            name: string;
+            role: {
+                id: number;
+                name: string;
+                permissions: {
                     id: number;
+                    code: string;
                     name: string;
-                    role: {
-                        id: number;
-                        name: string;
-                        permissions: {
-                            id: number;
-                            code: string;
-                            name: string;
-                        }[];
-                    };
                 }[];
             };
-            const permissions = await mosApi<Permissions>(
-                '/mos/v1/auth-api/employee-permissions'
-            );
-            const malls: Malls = [];
-            permissions.malls.forEach(({ id, name, role }) => {
-                malls.push({
-                    id,
-                    name,
-                    permissions: role.permissions.map(({ code }) => code),
-                });
-            });
-            window.localStorage.setItem('malls', JSON.stringify(malls));
-            // (temp) ==========================================================
-
-            // -----------------------------------------------------------------
-            // set the first mall
-            // -----------------------------------------------------------------
-            const mall = malls[0];
-            window.localStorage.setItem('mallId', String(mall?.id));
-            window.localStorage.setItem('mallName', String(mall?.name));
-
-            // -----------------------------------------------------------------
-            // set the first store (if exists)
-            // -----------------------------------------------------------------
-            if (mall?.stores) {
-                const store = mall.stores[0];
-                window.localStorage.setItem('storeId', String(store.id));
-                window.localStorage.setItem('storeName', String(store.name));
-            }
-        },
+        }[];
+    };
+    const permissions = await mosApi<Permissions>(
+        '/mos/v1/auth-api/employee-permissions'
+    );
+    const malls: Malls = [];
+    permissions.malls.forEach(({ id, name, role }) => {
+        malls.push({
+            id,
+            name,
+            permissions: role.permissions.map(({ code }) => code),
+        });
     });
+    window.localStorage.setItem('malls', JSON.stringify(malls));
+    // (temp) ==========================================================
+
+    // -----------------------------------------------------------------
+    // set the first mall
+    // -----------------------------------------------------------------
+    const mall = malls[0];
+    window.localStorage.setItem('mallId', String(mall?.id));
+    window.localStorage.setItem('mallName', String(mall?.name));
+
+    // -----------------------------------------------------------------
+    // set the first store (if exists)
+    // -----------------------------------------------------------------
+    if (mall?.stores) {
+        const store = mall.stores[0];
+        window.localStorage.setItem('storeId', String(store.id));
+        window.localStorage.setItem('storeName', String(store.name));
+    }
+
+    return true;
+};
 
 const mosAuthenticated = (): boolean =>
     !!window.localStorage.getItem('x-access-token');
