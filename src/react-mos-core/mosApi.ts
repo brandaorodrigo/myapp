@@ -134,24 +134,18 @@ const mosAuthentication = async (
     );
 
     if (!authentication) {
-        return false;
+        throw new Error('error');
     }
 
-    // -----------------------------------------------------------------
-    // set employee.name
-    // -----------------------------------------------------------------
     window.localStorage.setItem('employeeName', authentication.name);
 
-    // -----------------------------------------------------------------
-    // set permissions
-    // -----------------------------------------------------------------
     /*
-            const malls = await mosApi<Permissions>(
-                '/mos/v1/auth-api/employee-malls'
-            );
-            window.localStorage.setItem('malls', JSON.stringify(malls));
-            */
-    // (temp) ==========================================================
+    const malls = await mosApi<Permissions>(
+        '/mos/v1/auth-api/employee-malls'
+    );
+    window.localStorage.setItem('malls', JSON.stringify(malls));
+    */
+    // (temp) ==================================================================
     type Permissions = {
         malls: {
             id: number;
@@ -179,18 +173,12 @@ const mosAuthentication = async (
         });
     });
     window.localStorage.setItem('malls', JSON.stringify(malls));
-    // (temp) ==========================================================
+    // (temp) ==================================================================
 
-    // -----------------------------------------------------------------
-    // set the first mall
-    // -----------------------------------------------------------------
     const mall = malls[0];
     window.localStorage.setItem('mallId', String(mall?.id));
     window.localStorage.setItem('mallName', String(mall?.name));
 
-    // -----------------------------------------------------------------
-    // set the first store (if exists)
-    // -----------------------------------------------------------------
     if (mall?.stores) {
         const store = mall.stores[0];
         window.localStorage.setItem('storeId', String(store.id));
