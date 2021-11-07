@@ -1,3 +1,4 @@
+import { mosAuthenticated, mosPermission } from 'react-mos-core/mosApi';
 import {
     Redirect,
     Route,
@@ -6,8 +7,7 @@ import {
     useLocation,
 } from 'react-router-dom';
 
-import { Home, Login, Logout, Lost1, Lost2, Lost3 } from './Pages/pages';
-import { mosAuthenticated, mosPermission } from './react-mos-core/mosApi';
+import { Home, Login, Logout, Lost1, Lost2, Lost3 } from 'Pages/pages';
 
 const PrivateRoute: React.FC<RouteProps & { permission: string }> = ({
     permission: value,

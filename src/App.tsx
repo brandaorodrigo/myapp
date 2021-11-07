@@ -5,8 +5,7 @@ import 'antd/dist/antd.css';
 
 import { ConfigProvider } from 'antd';
 import ptBR from 'antd/lib/locale/pt_BR';
-
-import Routes from './Routes';
+import Routes from 'Routes';
 
 TagManager.initialize({
     gtmId: 'GTM-M45KTGJ',

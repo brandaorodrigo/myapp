@@ -1,15 +1,11 @@
 import React, { useEffect } from 'react';
+import mosApi, { mosAuthentication, mosSignout } from 'react-mos-core/mosApi';
+import useStorage from 'react-mos-core/useStorage';
 import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
 import { Button, Form, Input } from 'antd';
-
-import PrivateLayout from '../Layouts/Private';
-import PublicLayout from '../Layouts/Public';
-import mosApi, {
-    mosAuthentication,
-    mosSignout,
-} from '../react-mos-core/mosApi';
-import useStorage from '../react-mos-core/useStorage';
+import PrivateLayout from 'Layouts/Private';
+import PublicLayout from 'Layouts/Public';
 
 export const Login: React.FC = () => {
     const { search } = useLocation();

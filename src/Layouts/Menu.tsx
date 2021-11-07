@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { mosPermission } from 'react-mos-core/mosApi';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
 
 import {
@@ -7,8 +8,6 @@ import {
     SettingOutlined,
 } from '@ant-design/icons';
 import { Menu } from 'antd';
-
-import { mosPermission } from '../react-mos-core/mosApi';
 
 const { SubMenu } = Menu;
 
