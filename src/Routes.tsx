@@ -7,25 +7,25 @@ import {
 } from 'react-router-dom';
 
 import { Home, Login, Logout, Lost1, Lost2, Lost3 } from './Pages/pages';
-import { authenticated, permission } from './react-mos-core/mosApi';
+import { mosAuthenticated, mosPermission } from './react-mos-core/mosApi';
 
 const PrivateRoute: React.FC<RouteProps & { permission: string }> = ({
     permission: value,
     ...rest
-}) => (permission(value) ? <Route {...rest} /> : <Redirect to="/403" />);
+}) => (mosPermission(value) ? <Route {...rest} /> : <Redirect to="/403" />);
 
 const Routes = (): React.ReactElement => {
     const { pathname, search } = useLocation();
     return (
         <>
-            {permission('ACCESS-VIPROOM') && (
+            {mosPermission('ACCESS-VIPROOM') && (
                 <Switch>
                     <Route component={Home} exact path="/own2" />
                     <Route component={Home} exact path="/own3" />
                     <Route component={Home} exact path="/own4" />
                 </Switch>
             )}
-            {authenticated() ? (
+            {mosAuthenticated() ? (
                 <Switch>
                     <Route component={Home} exact path="/" />
                     <PrivateRoute

@@ -1,3 +1,12 @@
+const hosts = [
+    { host: 'mos.spotmetrics.com', env: 'prd' },
+    { host: 'mos-staging.spotmetrics.com', env: 'staging' },
+    { host: 'mos-sandbox.spotmetrics.com', env: 'sandbox' },
+    { host: 'mos-dev-k8.spotmetrics.com', env: 'dev-k8s' },
+    { host: 'mos-dev.spotmetrics.com', env: 'dev' },
+    { host: 'localhost', env: 'dev' },
+];
+
 const JSONparse = (text: string | null): unknown => {
     try {
         return text ? JSON.parse(text) : {};
@@ -6,7 +15,7 @@ const JSONparse = (text: string | null): unknown => {
     }
 };
 
-const api = async <T>(
+const JSONfetch = async <T>(
     input: string,
     options?: {
         body?: unknown | null;
@@ -81,56 +90,35 @@ const mosApi = async <T>(
         getHeaders?: (headers: Headers, json: T) => void;
     }
 ): Promise<T> => {
-    // -------------------------------------------------------------------------
-    // api url based on react env or domain name
-    // -------------------------------------------------------------------------
     if (!window.localStorage.getItem('env')) {
-        const getEnvByDomain = (): string => {
-            const { host } = window.location;
-            if (host.indexOf('mos.spotme') !== -1) return 'prd';
-            if (host.indexOf('mos-stagin') !== -1) return 'staging';
-            if (host.indexOf('mos-sandbo') !== -1) return 'sandbox';
-            if (host.indexOf('mos-dev-k8') !== -1) return 'dev-k8s';
-            if (host.indexOf('mos-dev.sp') !== -1) return 'dev';
-            return 'dev';
+        const findEnv = (): string => {
+            const found = hosts.find(
+                ({ host }) => !!(window.location.host.indexOf(host) !== -1)
+            );
+            return found?.env ?? 'dev';
         };
-        const env = process.env.REACT_APP_ENV ?? getEnvByDomain();
+        const env = process.env.REACT_APP_ENV ?? findEnv();
         window.localStorage.setItem('env', env);
     }
+
     const env = window.localStorage.getItem('env');
-    const url = `https://mos-api-${env}.spotmetrics.com`;
+    const url = new URL(`https://mos-api-${env}.spotmetrics.com${input}`);
 
-    // -------------------------------------------------------------------------
-    // add on uri the common query params (mallId and storeId)
-    // -------------------------------------------------------------------------
-    const setParamsFromStorage = (current: string, params: string[]) => {
-        let value = current;
-        params.forEach((param) => {
-            if (current.indexOf(param) === -1) {
-                const item = window.localStorage.getItem(param);
-                if (item) {
-                    const symbol = value.indexOf('?') === -1 ? '?' : '&';
-                    value += `${symbol + param}=${item}`;
-                }
-            }
-        });
-        return value;
-    };
-    const uri = setParamsFromStorage(input, ['mallId', 'storeId']);
+    const mallId = window.localStorage.getItem('mallId');
+    if (mallId) url.searchParams.set('mallId', mallId);
 
-    // -------------------------------------------------------------------------
-    // x-access-token on header
-    // -------------------------------------------------------------------------
-    return api<T>(url + uri, {
-        headers: {
-            'x-access-token':
-                window.localStorage.getItem('x-access-token') ?? '',
-        },
+    const storeId = window.localStorage.getItem('storeId');
+    if (storeId) url.searchParams.set('storeId', storeId);
+
+    const token = window.localStorage.getItem('x-access-token');
+
+    return JSONfetch<T>(url.href, {
+        headers: { 'x-access-token': token ?? '' },
         ...options,
     });
 };
 
-type Permissions = {
+type Malls = {
     id: number;
     name: string;
     permissions: string[];
@@ -140,7 +128,7 @@ type Permissions = {
     }[];
 }[];
 
-const authentication = (
+const mosAuthentication = (
     email: string,
     password: string
 ): Promise<{ name: string; area: string }> =>
@@ -162,8 +150,14 @@ const authentication = (
             // -----------------------------------------------------------------
             // set permissions
             // -----------------------------------------------------------------
-            // (temp)
-            type OldPermissions = {
+            /*
+            const malls = await mosApi<Permissions>(
+                '/mos/v1/auth-api/employee-malls'
+            );
+            window.localStorage.setItem('malls', JSON.stringify(malls));
+            */
+            // (temp) ==========================================================
+            type Permissions = {
                 malls: {
                     id: number;
                     name: string;
@@ -178,51 +172,51 @@ const authentication = (
                     };
                 }[];
             };
-            const oldPermissions = await mosApi<OldPermissions>(
+            const permissions = await mosApi<Permissions>(
                 '/mos/v1/auth-api/employee-permissions'
             );
-            // (temp) fix permissions
-            const permissions: Permissions = [];
-            oldPermissions.malls.forEach(({ id, name, role }) => {
-                permissions.push({
+            const malls: Malls = [];
+            permissions.malls.forEach(({ id, name, role }) => {
+                malls.push({
                     id,
                     name,
                     permissions: role.permissions.map(({ code }) => code),
                 });
             });
-            const stringPermissions = JSON.stringify(permissions);
-            window.localStorage.setItem('permissions', stringPermissions);
+            window.localStorage.setItem('malls', JSON.stringify(malls));
+            // (temp) ==========================================================
 
             // -----------------------------------------------------------------
             // set the first mall
             // -----------------------------------------------------------------
-            window.localStorage.setItem('mallId', String(permissions[0]?.id));
-            window.localStorage.setItem('mallName', permissions[0]?.name);
+            const mall = malls[0];
+            window.localStorage.setItem('mallId', String(mall?.id));
+            window.localStorage.setItem('mallName', String(mall?.name));
 
             // -----------------------------------------------------------------
             // set the first store (if exists)
             // -----------------------------------------------------------------
-            if (permissions[0]?.stores) {
-                const store = permissions[0].stores[0];
+            if (mall?.stores) {
+                const store = mall.stores[0];
                 window.localStorage.setItem('storeId', String(store.id));
                 window.localStorage.setItem('storeName', String(store.name));
             }
         },
     });
 
-const authenticated = (): boolean =>
+const mosAuthenticated = (): boolean =>
     !!window.localStorage.getItem('x-access-token');
 
-const permission = (name: string): boolean => {
-    if (authenticated()) {
+const mosPermission = (name: string): boolean => {
+    if (!mosAuthenticated()) {
         return false;
     }
 
-    const mallId = Number(window.localStorage.getItem('mallId'));
-    const stringPermissions = window.localStorage.getItem('permissions');
-    const permissions = JSONparse(stringPermissions) as Permissions;
+    const mallId = window.localStorage.getItem('mallId');
+    const malls = JSONparse(window.localStorage.getItem('malls')) as Malls;
 
-    const mall = permissions?.find(({ id }) => id === mallId);
+    const mall = malls.length && malls?.find(({ id }) => id === Number(mallId));
+
     if (mall && mall.permissions?.find((code) => code === name)) {
         return true;
     }
@@ -230,10 +224,10 @@ const permission = (name: string): boolean => {
     return false;
 };
 
-const signout = (): void => {
-    window.localStorage.removeItem('x-access-token');
+const mosSignout = (): void => {
+    window.localStorage.clear();
     window.sessionStorage.clear();
 };
 
 export default mosApi;
-export { authentication, authenticated, permission, signout };
+export { mosAuthentication, mosAuthenticated, mosPermission, mosSignout };

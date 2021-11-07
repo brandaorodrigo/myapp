@@ -5,7 +5,10 @@ import { Button, Form, Input } from 'antd';
 
 import PrivateLayout from '../Layouts/Private';
 import PublicLayout from '../Layouts/Public';
-import { authentication } from '../react-mos-core/mosApi';
+import mosApi, {
+    mosAuthentication,
+    mosSignout,
+} from '../react-mos-core/mosApi';
 import useStorage from '../react-mos-core/useStorage';
 
 export const Login: React.FC = () => {
@@ -16,7 +19,7 @@ export const Login: React.FC = () => {
     const [form] = useForm();
 
     const onFinish = (submit: { email: string; password: string }) => {
-        authentication(submit.email, submit.password)
+        mosAuthentication(submit.email, submit.password)
             .then(() => {
                 const query = new URLSearchParams(search);
                 history.push(query.get('url') ?? '/');
@@ -58,8 +61,7 @@ export const Logout: React.FC = () => {
 
     useEffect(() => {
         setTimeout(() => {
-            localStorage.clear();
-            sessionStorage.clear();
+            mosSignout();
             history.push('/');
         }, 1000);
     }, [history]);
@@ -74,6 +76,12 @@ export const Home: React.FC = () => {
     const { hash, pathname, search } = useLocation();
     const query = new URLSearchParams(search);
     const { id } = useParams<any>();
+
+    useEffect(() => {
+        mosApi('/mos/v1/store-management/stores').then((response) =>
+            console.log(response)
+        );
+    }, []);
 
     return (
         <PrivateLayout>
