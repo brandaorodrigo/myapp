@@ -29,12 +29,8 @@ const JSONfetch = async <T>(input: string, options?: Options): Promise<T> => {
     if (options?.cache === true) {
         if (method === 'GET') {
             const text = window.sessionStorage.getItem(input);
-            if (text && text !== '') {
-                return JSONparse(text) as T;
-            }
-        } else {
-            window.sessionStorage.removeItem(input);
-        }
+            if (text && text !== '') return JSONparse(text) as T;
+        } else window.sessionStorage.removeItem(input);
     }
 
     const fetchPromise = await fetch(input, {
@@ -53,17 +49,12 @@ const JSONfetch = async <T>(input: string, options?: Options): Promise<T> => {
 
         const json = JSONparse(await response.text());
 
-        if (options?.cache === true && method === 'GET') {
+        if (options?.cache === true && method === 'GET')
             window.sessionStorage.setItem(input, JSON.stringify(json));
-        }
 
-        if (response.status < 200 || response.status >= 300) {
-            throw json;
-        }
+        if (response.status < 200 || response.status >= 300) throw json;
 
-        if (options?.getHeaders) {
-            options.getHeaders(response.headers);
-        }
+        if (options?.getHeaders) options.getHeaders(response.headers);
 
         return json as T;
     });
@@ -192,18 +183,14 @@ const mosAuthenticated = (): boolean =>
     !!window.localStorage.getItem('x-access-token');
 
 const mosPermission = (name: string): boolean => {
-    if (!mosAuthenticated()) {
-        return false;
-    }
+    if (!mosAuthenticated()) return false;
 
     const mallId = window.localStorage.getItem('mallId');
     const malls = JSONparse(window.localStorage.getItem('malls')) as Malls;
 
     const mall = malls.length && malls?.find(({ id }) => id === Number(mallId));
 
-    if (mall && mall.permissions?.find((code) => code === name)) {
-        return true;
-    }
+    if (mall && mall.permissions?.find((code) => code === name)) return true;
 
     return false;
 };
