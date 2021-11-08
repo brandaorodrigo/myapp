@@ -90,7 +90,7 @@ const mosApi = async <T>(input: string, options?: Options): Promise<T> => {
     const storeId = window.localStorage.getItem('storeId');
     if (storeId) url.searchParams.set('storeId', storeId);
 
-    const token = window.localStorage.getItem('x-access-token');
+    const token = window.localStorage.getItem('token');
 
     return fetchJson<T>(url.href, {
         headers: { 'x-access-token': token ?? '' },
@@ -101,7 +101,11 @@ const mosApi = async <T>(input: string, options?: Options): Promise<T> => {
 type Malls = {
     id: number;
     name: string;
-    permissions: string[];
+    roles: {
+        id: number;
+        name: string;
+        permissions: string[];
+    }[];
     stores?: {
         id: number;
         name: string;
@@ -119,7 +123,7 @@ const mosAuthentication = async (
             body: { email, password },
             getHeaders: async (headers) => {
                 const token = headers.get('x-access-token') as string;
-                window.localStorage.setItem('x-access-token', token);
+                window.localStorage.setItem('token', token);
             },
         }
     );
@@ -131,12 +135,16 @@ const mosAuthentication = async (
     window.localStorage.setItem('employeeName', authentication.name);
 
     /*
-    const malls = await mosApi<Permissions>(
-        '/mos/v1/auth-api/employee-malls'
+    const malls = await mosApi<Malls>(
+        '/mos/v1/auth-api/employee-permissions-new'
     );
     window.localStorage.setItem('malls', JSON.stringify(malls));
     */
-    // (temp) ==================================================================
+
+    // TEMP ====================================================================
+    // =========================================================================
+    // =========================================================================
+    // =========================================================================
     type Permissions = {
         malls: {
             id: number;
@@ -160,18 +168,35 @@ const mosAuthentication = async (
         malls.push({
             id,
             name,
-            permissions: role.permissions.map(({ code }) => code),
+            roles: [
+                {
+                    id: role.id,
+                    name: role.name,
+                    permissions: role.permissions.map(({ code }) => code),
+                },
+            ],
         });
     });
     window.localStorage.setItem('malls', JSON.stringify(malls));
-    // (temp) ==================================================================
+    // =========================================================================
+    // =========================================================================
+    // =========================================================================
+    // =========================================================================
 
     const mall = malls[0];
-    window.localStorage.setItem('mallId', String(mall?.id));
-    window.localStorage.setItem('mallName', String(mall?.name));
+    if (mall) {
+        window.localStorage.setItem('mallId', String(mall?.id));
+        window.localStorage.setItem('mallName', String(mall?.name));
+    }
 
-    if (mall?.stores) {
-        const store = mall.stores[0];
+    const role = mall?.roles && mall?.roles[0];
+    if (role) {
+        window.localStorage.setItem('roleId', String(role?.id));
+        window.localStorage.setItem('roleName', String(role?.name));
+    }
+
+    const store = mall?.stores && mall?.stores[0];
+    if (store) {
         window.localStorage.setItem('storeId', String(store.id));
         window.localStorage.setItem('storeName', String(store.name));
     }
@@ -179,18 +204,22 @@ const mosAuthentication = async (
     return true;
 };
 
-const mosAuthenticated = (): boolean =>
-    !!window.localStorage.getItem('x-access-token');
+const mosAuthenticated = (): boolean => !!window.localStorage.getItem('token');
 
 const mosPermission = (name: string): boolean => {
     if (!mosAuthenticated()) return false;
 
-    const mallId = window.localStorage.getItem('mallId');
     const malls = parseJson(window.localStorage.getItem('malls')) as Malls;
 
-    const mall = malls.length && malls?.find(({ id }) => id === Number(mallId));
+    if (!malls.length) return false;
 
-    if (mall && mall.permissions?.find((code) => code === name)) return true;
+    const mallId = window.localStorage.getItem('mallId');
+    const mall = malls?.find(({ id }) => id === Number(mallId));
+
+    const roleId = window.localStorage.getItem('roleId');
+    const role = mall?.roles?.find(({ id }) => id === Number(roleId));
+
+    if (role && role.permissions?.find((value) => value === name)) return true;
 
     return false;
 };

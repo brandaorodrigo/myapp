@@ -96,7 +96,7 @@ export const Home: React.FC = () => {
                 <br />
                 MALL: {localStorage.getItem('mall')}
                 <br />
-                x-access-token: {localStorage.getItem('x-access-token')}
+                token: {localStorage.getItem('token')}
                 <br />
                 <button onClick={() => setTt('zzz')} type="button">
                     SET NEW NAME
