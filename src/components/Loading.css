@@ -1,0 +1,118 @@
+.ant-loading {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    border-radius: 6px;
+    height: 100%;
+    padding: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 9998;
+}
+
+.ant-loading span {
+    display: block;
+    position: absolute;
+    left: calc(50% - 40px);
+    top: calc(50% - 40px);
+    margin: 0;
+    padding: 0;
+    height: 80px;
+    width: 80px;
+    transform: rotate(45deg);
+    border-radius: 50%;
+    z-index: 99999;
+}
+
+.ant-loading span:before,
+.ant-loading span:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    height: 100%;
+    padding: 0;
+    width: 100%;
+    border: 14px solid transparent;
+    border-radius: 50%;
+}
+
+.ant-loading span:before {
+    border-color: #fff #fff transparent #fff;
+    border-color: #552e62 #552e62 transparent #552e62;
+    -webkit-animation: spot-circle 1.5s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+    animation: spot-circle 1.5s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+
+.ant-loading span:after {
+    border-width: 15px;
+    border-color: #54bbab transparent transparent transparent;
+    -webkit-animation: spot-wave 1.5s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+    animation: spot-wave 1.5s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+
+@-webkit-keyframes spot-circle {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    50% {
+        -webkit-transform: rotate(180deg);
+    }
+    60% {
+        -webkit-transform: rotate(180deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+@keyframes spot-circle {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(180deg);
+    }
+    60% {
+        transform: rotate(180deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes spot-wave {
+    0% {
+        -webkit-transform: translate3d(0, 8px, 0) scale(0, 0);
+        opacity: 0.3;
+    }
+    55% {
+        -webkit-transform: translate3d(0, -8px, 0) scale(1, 1);
+        opacity: 1;
+    }
+    100% {
+        -webkit-transform: translate3d(0, -32px, 0) scale(1.4, 1.4);
+        opacity: 0;
+    }
+}
+@keyframes spot-wave {
+    0% {
+        transform: translate3d(0, 8px, 0) scale(0, 0);
+        opacity: 0.3;
+    }
+    55% {
+        transform: translate3d(0, -8px, 0) scale(1, 1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(0, -32px, 0) scale(1.4, 1.4);
+        opacity: 0;
+    }
+}

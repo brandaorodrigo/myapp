@@ -7,7 +7,7 @@ const hosts = [
     { host: 'localhost', env: 'dev' },
 ];
 
-const JSONparse = (text: string | null): unknown => {
+const parseJson = (text: string | null): unknown => {
     try {
         return text ? JSON.parse(text) : {};
     } catch (error) {
@@ -23,13 +23,13 @@ type Options = {
     getHeaders?: (headers: Headers) => void;
 };
 
-const JSONfetch = async <T>(input: string, options?: Options): Promise<T> => {
+const fetchJson = async <T>(input: string, options?: Options): Promise<T> => {
     const method = options?.method ?? 'GET';
 
     if (options?.cache === true) {
         if (method === 'GET') {
             const text = window.sessionStorage.getItem(input);
-            if (text && text !== '') return JSONparse(text) as T;
+            if (text && text !== '') return parseJson(text) as T;
         } else window.sessionStorage.removeItem(input);
     }
 
@@ -47,7 +47,7 @@ const JSONfetch = async <T>(input: string, options?: Options): Promise<T> => {
             window.location.href = '/forbidden';
         }
 
-        const json = JSONparse(await response.text());
+        const json = parseJson(await response.text());
 
         if (options?.cache === true && method === 'GET')
             window.sessionStorage.setItem(input, JSON.stringify(json));
@@ -92,7 +92,7 @@ const mosApi = async <T>(input: string, options?: Options): Promise<T> => {
 
     const token = window.localStorage.getItem('x-access-token');
 
-    return JSONfetch<T>(url.href, {
+    return fetchJson<T>(url.href, {
         headers: { 'x-access-token': token ?? '' },
         ...options,
     });
@@ -186,7 +186,7 @@ const mosPermission = (name: string): boolean => {
     if (!mosAuthenticated()) return false;
 
     const mallId = window.localStorage.getItem('mallId');
-    const malls = JSONparse(window.localStorage.getItem('malls')) as Malls;
+    const malls = parseJson(window.localStorage.getItem('malls')) as Malls;
 
     const mall = malls.length && malls?.find(({ id }) => id === Number(mallId));
 

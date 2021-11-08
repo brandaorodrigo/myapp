@@ -1,4 +1,4 @@
-import { mosAuthenticated, mosPermission } from 'react-mos-core/mosApi';
+import { mosAuthenticated, mosPermission } from 'react-mos-core/mos-api';
 import {
     Redirect,
     Route,
@@ -18,7 +18,7 @@ const Routes = (): React.ReactElement => {
     const { pathname, search } = useLocation();
     return (
         <>
-            {mosPermission('ACCESS-VIPROOM') && (
+            {mosPermission('ACCESS-INSTOREVIEW') && (
                 <Switch>
                     <Route component={Home} exact path="/own2" />
                     <Route component={Home} exact path="/own3" />

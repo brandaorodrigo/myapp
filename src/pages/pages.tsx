@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import mosApi, { mosAuthentication, mosSignout } from 'react-mos-core/mosApi';
+import mosApi, { mosAuthentication, mosSignout } from 'react-mos-core/mos-api';
 import useStorage from 'react-mos-core/useStorage';
 import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
@@ -112,6 +112,26 @@ export const Home: React.FC = () => {
                     type="button"
                 >
                     RELOAD PAGE
+                </button>
+                <button
+                    onClick={() => {
+                        window.localStorage.setItem('mallId', '5');
+                        history.push('/');
+                        // history.replace(pathname);
+                    }}
+                    type="button"
+                >
+                    MALLID = 5
+                </button>
+                <button
+                    onClick={() => {
+                        window.localStorage.setItem('mallId', '2');
+                        history.push('/');
+                        // history.replace(pathname);
+                    }}
+                    type="button"
+                >
+                    MALLID = 2
                 </button>
                 <br />
                 <NavLink to="/about/dsdsd?teste=444">TESTE SEARCH</NavLink>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { mosPermission } from 'react-mos-core/mosApi';
+import { mosPermission } from 'react-mos-core/mos-api';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
 
 import {
@@ -56,11 +56,11 @@ export default function MosMenu(): React.ReactElement {
                     <Menu.Item key="4">Option 4</Menu.Item>
                 </Menu.ItemGroup>
             </SubMenu>
-            {mosPermission('WRITE-STORE') && (
+            {mosPermission('ACCESS-INSTOREVIEW') && (
                 <SubMenu
                     icon={<AppstoreOutlined />}
                     key="sub2"
-                    title="Navigation Two"
+                    title="ACCESS-INSTOREVIEW"
                 >
                     <Menu.Item key="5">Option 5</Menu.Item>
                     <Menu.Item key="/lost-found/form/556665">
