@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-// helpers -------------------------------------------------------------------------------------------------------------
+// utils -----------------------------------------------------------------------
 
 const onlyNumeric = (value: string | number): string =>
     value ? String(value).replace(/\D/g, '') : '';
@@ -28,7 +28,7 @@ const toMaskDate = (value: string, mask: string): string => {
     ).format(mask);
 };
 
-// format --------------------------------------------------------------------------------------------------------------
+// format ----------------------------------------------------------------------
 
 const formatAccents = (value: string): string => {
     if (!value) return '';
@@ -84,7 +84,7 @@ const formatSearch = (value: string): string => {
     );
 };
 
-// mask ----------------------------------------------------------------------------------------------------------------
+// mask ------------------------------------------------------------------------
 
 const maskCurrency = (value: string | number): string => {
     if (!value) return '';
@@ -120,7 +120,7 @@ const maskPhone = (value: string): string => {
     );
 };
 
-// unmask --------------------------------------------------------------------------------------------------------------
+// unmask ----------------------------------------------------------------------
 
 const unmaskCurrency = (value: string | number): number | undefined => {
     if (!value) return undefined;
@@ -140,7 +140,7 @@ const unmaskPhone = (value: string): string => {
     return `+55${unmakedValue}`;
 };
 
-// export --------------------------------------------------------------------------------------------------------------
+// export ----------------------------------------------------------------------
 
 export const mask = {
     // format

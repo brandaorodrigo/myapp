@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import mosApi, { mosAuthentication, mosSignout } from 'react-mos-core/mos-api';
+import mosApi, { mosSignIn, mosSignOut } from 'react-mos-core/mos-api';
 import useStorage from 'react-mos-core/useStorage';
 import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
@@ -15,7 +15,7 @@ export const Login: React.FC = () => {
     const [form] = useForm();
 
     const onFinish = (submit: { email: string; password: string }) => {
-        mosAuthentication(submit.email, submit.password)
+        mosSignIn(submit.email, submit.password)
             .then(() => {
                 const query = new URLSearchParams(search);
                 history.push(query.get('url') ?? '/');
@@ -57,7 +57,7 @@ export const Logout: React.FC = () => {
 
     useEffect(() => {
         setTimeout(() => {
-            mosSignout();
+            mosSignOut();
             history.push('/');
         }, 1000);
     }, [history]);

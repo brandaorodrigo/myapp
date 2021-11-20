@@ -1,4 +1,4 @@
-import { mosAuthenticated, mosPermission } from 'react-mos-core/mos-api';
+import { mosPermission, mosSigned } from 'react-mos-core/mos-api';
 import {
     Redirect,
     Route,
@@ -7,7 +7,7 @@ import {
     useLocation,
 } from 'react-router-dom';
 
-import { Home, Login, Logout, Lost1, Lost2, Lost3 } from 'Pages/pages';
+import { Home, Login, Logout, Lost1, Lost2, Lost3 } from 'pages/pages';
 
 const PrivateRoute: React.FC<RouteProps & { permission: string }> = ({
     permission: value,
@@ -25,7 +25,7 @@ const Routes = (): React.ReactElement => {
                     <Route component={Home} exact path="/own4" />
                 </Switch>
             )}
-            {mosAuthenticated() ? (
+            {mosSigned() ? (
                 <Switch>
                     <Route component={Home} exact path="/" />
                     <PrivateRoute
