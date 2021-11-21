@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import mosApi, { mosSignIn, mosSignOut } from 'react-mos-core/mos-api';
-import useStorage from 'react-mos-core/useStorage';
 import { NavLink, useHistory, useLocation, useParams } from 'react-router-dom';
 
 import { Button, Form, Input } from 'antd';
@@ -66,17 +65,13 @@ export const Logout: React.FC = () => {
 };
 
 export const Home: React.FC = () => {
-    const [tt, setTt] = useStorage<any>('tt');
-    console.log(tt);
     const history = useHistory();
     const { hash, pathname, search } = useLocation();
     const query = new URLSearchParams(search);
     const { id } = useParams<any>();
 
     useEffect(() => {
-        mosApi('/mos/v1/store-management/stores').then((response) =>
-            console.log(response)
-        );
+        mosApi('/mos/v1/store-management/stores').then((response) => console.log(response));
     }, []);
 
     return (
@@ -88,8 +83,6 @@ export const Home: React.FC = () => {
                 <br />
                 ID: {id}
                 <br />
-                IDD: {tt}
-                <br />
                 <br />
                 NAME: {localStorage.getItem('name')}
                 <br />
@@ -98,12 +91,6 @@ export const Home: React.FC = () => {
                 <br />
                 token: {localStorage.getItem('token')}
                 <br />
-                <button onClick={() => setTt('zzz')} type="button">
-                    SET NEW NAME
-                </button>
-                <button onClick={() => setTt(undefined)} type="button">
-                    SET NEW MALL
-                </button>
                 <button
                     onClick={() => {
                         history.push('/reload');
