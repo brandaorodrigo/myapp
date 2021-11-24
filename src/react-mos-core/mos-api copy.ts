@@ -90,12 +90,6 @@ const mosApi = async <T>(input: string, options?: Options): Promise<T> => {
     });
 };
 
-// set -------------------------------------------------------------------------
-
-const setMall = (id: string | number): void => window.localStorage.setItem('mallId', String(id));
-
-const setStore = (id: string | number): void => window.localStorage.setItem('storeId', String(id));
-
 // sign ------------------------------------------------------------------------
 
 type Permission = {
@@ -125,7 +119,7 @@ const normalizePermissions = async (): Promise<Permission[]> => {
             };
         }[];
     };
-    const mallsLegacy = await mosApi<MallsLegacy>('/mos/v1/auth-api/employee-permissions', { cache: true });
+    const mallsLegacy = await mosApi<MallsLegacy>('/mos/v1/auth-api/employee-permissions');
     const permissions: Permission[] = [];
     mallsLegacy.malls.forEach(({ id, name, role }) => {
         permissions.push({
@@ -158,15 +152,25 @@ const mosSignIn = async (email: string, password: string): Promise<boolean> => {
 
     window.localStorage.setItem('employee', authentication.name);
 
+    /*
+    const permissions = await mosApi<Permissions>(
+        '/mos/v1/auth-api/employee-permissions'
+    );
+    */
     const permissions = await normalizePermissions();
-    // const permissions = await mosApi<Permissions>('/mos/v1/auth-api/employee-permissions', { cache: true });
     window.localStorage.setItem('permissions', JSON.stringify(permissions));
 
     const mall = permissions[0];
-    if (mall && mall?.permissions?.length) setMall(mall.id);
+    if (mall) {
+        window.localStorage.setItem('mallId', String(mall?.id));
+        window.localStorage.setItem('mallName', String(mall?.name));
+    }
 
-    const store = mall?.stores?.length && mall?.stores[0];
-    if (store && store?.permissions?.length) setStore(store.id);
+    const store = mall?.stores && mall?.stores[0];
+    if (store) {
+        window.localStorage.setItem('storeId', String(store.id));
+        window.localStorage.setItem('storeName', String(store.name));
+    }
 
     return true;
 };
@@ -184,6 +188,7 @@ const findMall = (mallId: number): Permission | undefined => {
     if (!mosSigned()) return undefined;
 
     const permissions = parseJson(window.localStorage.getItem('permissions')) as Permission[];
+    if (!permissions.length) return undefined;
 
     const mall = permissions?.find(({ id }) => id === mallId);
 
