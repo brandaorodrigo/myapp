@@ -37,14 +37,17 @@ const fetchJson = async <T>(input: string, options?: Options): Promise<T> => {
         },
         body: options?.body ? JSON.stringify(options.body) : undefined,
     }).then(async (response) => {
+        /*
         if (response.status === 403) {
             window.sessionStorage.clear();
             window.location.href = '/forbidden';
         }
+        */
 
         const json = parseJson(await response.text());
 
-        if (options?.cache === true && method === 'GET') window.sessionStorage.setItem(input, JSON.stringify(json));
+        if (options?.cache === true && method === 'GET')
+            window.sessionStorage.setItem(input, JSON.stringify(json));
 
         if (response.status < 200 || response.status >= 300) throw json;
 
@@ -53,36 +56,44 @@ const fetchJson = async <T>(input: string, options?: Options): Promise<T> => {
         return json as T;
     });
 
-    return new Promise((resolve: (value: T) => void, reject: (reason?: unknown) => void) => {
-        try {
-            resolve(fetchPromise);
-        } catch (error) {
-            reject(error);
+    return new Promise(
+        (resolve: (value: T) => void, reject: (reason?: unknown) => void) => {
+            try {
+                resolve(fetchPromise);
+            } catch (error) {
+                reject(error);
+            }
         }
-    });
+    );
 };
+
+const setStorage = (name: string, id: string | number): void =>
+    window.localStorage.setItem(name, String(id));
+
+const getStorage = (name: string): string => window.localStorage.getItem(name);
 
 // api -------------------------------------------------------------------------
 
 const mosApi = async <T>(input: string, options?: Options): Promise<T> => {
-    if (!window.localStorage.getItem('env')) {
-        const findEnv = (): string => {
-            const found = hosts.find(({ host }) => !!(window.location.host.indexOf(host) !== -1));
-            return found?.env ?? 'dev';
-        };
-        const env = process.env.REACT_APP_ENV ?? findEnv();
-        window.localStorage.setItem('env', env);
-    }
-    const env = window.localStorage.getItem('env');
+    const find = () => {
+        const { env } = hosts.find(
+            ({ host }) => !!(window.location.host.indexOf(host) !== -1)
+        );
+        setStorage('env', env ?? 'dev');
+        return env;
+    };
+    const env = getStorage('env') ?? find();
+    // const env = process.env.REACT_APP_ENV;
+
     const url = new URL(`https://mos-api-${env}.spotmetrics.com${input}`);
 
-    const mallId = window.localStorage.getItem('mallId');
+    const mallId = getStorage('mallId');
     if (mallId) url.searchParams.set('mallId', mallId);
 
-    const storeId = window.localStorage.getItem('storeId');
+    const storeId = getStorage('storeId');
     if (storeId) url.searchParams.set('storeId', storeId);
 
-    const token = window.localStorage.getItem('x-access-token');
+    const token = getStorage('x-access-token');
 
     return fetchJson<T>(url.href, {
         headers: { 'x-access-token': token ?? '' },
@@ -90,83 +101,29 @@ const mosApi = async <T>(input: string, options?: Options): Promise<T> => {
     });
 };
 
-// set -------------------------------------------------------------------------
-
-const setMall = (id: string | number): void => window.localStorage.setItem('mallId', String(id));
-
-const setStore = (id: string | number): void => window.localStorage.setItem('storeId', String(id));
-
 // sign ------------------------------------------------------------------------
 
-type Permission = {
-    id: number;
-    name: string;
-    permissions?: string[];
-    stores?: {
-        id: number;
-        name: string;
-        permissions: string[];
-    }[];
-};
-
-const normalizePermissions = async (): Promise<Permission[]> => {
-    type MallsLegacy = {
-        malls: {
-            id: number;
-            name: string;
-            role: {
-                id: number;
-                name: string;
-                permissions: {
-                    id: number;
-                    code: string;
-                    name: string;
-                }[];
-            };
-        }[];
-    };
-    const mallsLegacy = await mosApi<MallsLegacy>('/mos/v1/auth-api/employee-permissions', { cache: true });
-    const permissions: Permission[] = [];
-    mallsLegacy.malls.forEach(({ id, name, role }) => {
-        permissions.push({
-            id,
-            name,
-            permissions: role.permissions.map(({ code }) => code),
-            stores: [
-                {
-                    id: 44,
-                    name: 'Store 44',
-                    permissions: ['PERMISSION-EXAMPLE-1', 'PERMISSION-EXAMPLE-2'],
-                },
-            ],
-        });
-    });
-    return permissions;
-};
-
 const mosSignIn = async (email: string, password: string): Promise<boolean> => {
-    const authentication = await mosApi<{ name: string; area: string }>('/mos/v1/auth-api/authentication', {
+    const authentication = await mosApi<{
+        name: string;
+        area: string;
+        isMosMallRegistered: boolean;
+        isMosStoreRegistered: boolean;
+    }>('/mos/v1/auth-api/authentication', {
         method: 'POST',
         body: { email, password },
         getHeaders: async (headers) => {
             const token = headers.get('x-access-token') as string;
-            window.localStorage.setItem('x-access-token', token);
+            setStorage('x-access-token', token);
         },
     });
 
     if (!authentication) throw new Error('error');
 
-    window.localStorage.setItem('employee', authentication.name);
+    setStorage('employee', authentication.name);
 
-    const permissions = await normalizePermissions();
-    // const permissions = await mosApi<Permissions>('/mos/v1/auth-api/employee-permissions', { cache: true });
-    window.localStorage.setItem('permissions', JSON.stringify(permissions));
-
-    const mall = permissions[0];
-    if (mall && mall?.permissions?.length) setMall(mall.id);
-
-    const store = mall?.stores?.length && mall?.stores[0];
-    if (store && store?.permissions?.length) setStore(store.id);
+    if (authentication.isMosMallRegistered) setStorage('mos-mall', '1');
+    if (authentication.isMosStoreRegistered) setStorage('mos-store', '1');
 
     return true;
 };
@@ -176,77 +133,7 @@ const mosSignOut = (): void => {
     window.sessionStorage.clear();
 };
 
-const mosSigned = (): boolean => !!window.localStorage.getItem('x-access-token');
-
-// permissions -----------------------------------------------------------------
-
-const findMall = (mallId: number): Permission | undefined => {
-    if (!mosSigned()) return undefined;
-
-    const permissions = parseJson(window.localStorage.getItem('permissions')) as Permission[];
-
-    const mall = permissions?.find(({ id }) => id === mallId);
-
-    return mall ?? undefined;
-};
-
-const mosPermission = {
-    mall: (name?: string): boolean => {
-        const mallId = Number(window.localStorage.getItem('mallId'));
-        const mall = findMall(mallId);
-        if (!mall) return false;
-
-        if (!name && mall?.permissions?.length) return true;
-
-        return !!mall.permissions?.find((value) => value === name);
-    },
-
-    store: (name?: string): boolean => {
-        const mallId = Number(window.localStorage.getItem('mallId'));
-        const mall = findMall(mallId);
-        if (!mall) return false;
-
-        if (!name && mall?.stores?.length) return true;
-
-        const storeId = window.localStorage.getItem('storeId');
-        const store = mall?.stores?.find(({ id }) => id === Number(storeId));
-        if (!store) return false;
-
-        return !!store.permissions?.find((value) => value === name);
-    },
-};
-
-// set -------------------------------------------------------------------------
-
-/*
-const mosPermission = (where: 'mall' | 'store', name?: string): boolean => {
-    if (!mosSigned()) return false;
-
-    const permissions = parseJson(
-        window.localStorage.getItem('permissions')
-    ) as Permissions;
-    if (!permissions.length) return false;
-
-    const mallId = window.localStorage.getItem('mallId');
-    const mall = permissions?.find(({ id }) => id === Number(mallId));
-    if (!mall) return false;
-
-    const found = mall && mall.permissions?.find((value) => value === name);
-    if (found) return true;
-
-    const storeId = window.localStorage.getItem('storeId');
-    if (!storeId) return false;
-
-    const store = mall?.stores?.find(({ id }) => id === Number(storeId));
-    if (!store) return false;
-
-    const allow = store && store.permissions?.find((value) => value === name);
-    if (!allow) return false;
-
-    return true;
-};
-*/
+const mosSigned = (): boolean => !!getStorage('x-access-token');
 
 export default mosApi;
-export { mosApi, mosSignIn, mosSignOut, mosSigned };
-export { mosPermission };
+export { mosApi, mosSignIn, mosSignOut, mosSigned, setStorage, getStorage };
