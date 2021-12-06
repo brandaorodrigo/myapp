@@ -21,9 +21,15 @@ rm -rf package-lock.json
 ssh-keygen -t rsa -C "your.email@example.com" -b 4096
 
 // fetchSpot is a complete standalone function
+
 // to connect and query API from spot metrics
+
 // - autosave and read the params from localStorage
+
 // - indetify the env from dns domain
+
 // - save result cache on sessionStorage
+
 // - fiscal redirect to /logout if recive forbidden from api
+
 // - accept raw value to send files or object values to send json
